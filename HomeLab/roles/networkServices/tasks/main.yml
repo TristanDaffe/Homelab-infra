@@ -1,4 +1,11 @@
 ---
+
+- name: Stop the systemd-resolved service
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: stopped
+    enabled: no
+
 - name: Make sure that the docker folders exists
   ansible.builtin.file:
     path: "{{ item }}"
