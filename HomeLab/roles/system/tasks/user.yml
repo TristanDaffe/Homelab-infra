@@ -11,15 +11,6 @@
       - "{{ username }}"
       - docker
 
-- name: Chmod the user home directory
-  file:
-    path: "/home/{{ username }}"
-    state: directory
-    mode: 0755
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    recurse: yes
-
 - name: Allow '{{ sudo_group }}' group to have passwordless sudo
   lineinfile:
     path: /etc/sudoers
