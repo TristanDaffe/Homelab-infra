@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://www.schemastore.org/traefik-v3.json
+
 api:
   dashboard: true
   insecure: false
@@ -20,16 +22,23 @@ entryPoints:
     address: ":443"
     http:
       tls: 
-        certResolver: duckdns
+        certResolver: "{{ swarm.cert_resolver }}"
         domains:
           - main: "{{ swarm.domain }}"
             sans:
               - "*.{{ swarm.domain }}"
 
 certificatesResolvers:
-  duckdns:
+  # duckdns:
+  #   acme:
+  #     email: "{{ email }}"
+  #     storage: "/letsencrypt/acme.json"
+  #     dnsChallenge:
+  #       provider: duckdns
+  ovh:
     acme:
       email: "{{ email }}"
       storage: "/letsencrypt/acme.json"
       dnsChallenge:
-        provider: duckdns
+        provider: ovh
+        delayBeforeCheck: "0"
