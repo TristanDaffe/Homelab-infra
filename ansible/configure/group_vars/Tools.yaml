@@ -54,13 +54,13 @@ docker:
         - bazarr
         - qbittorrent
 
-#######################
-# Backup (UrBackup)
-#######################
-
 traefik_peers:
   - "{{ hostvars[groups['Master'][0]].tailscale_ip }}"
   - "{{ hostvars[groups['Media'][0]].tailscale_ip }}"
+
+#######################
+# Backup (UrBackup)
+#######################
 
 urbackup:
   server_host: "{{ hostvars[groups['Master'][0]].services_ip }}"

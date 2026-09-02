@@ -1,0 +1,44 @@
+---
+
+hostname: devtools
+tailscale_ip: 
+mount_nas: false
+
+#######################
+# Docker
+#######################
+
+docker:
+  docker_dir: "/docker"
+  domain: dev.autostack.ovh
+  subdomain: "devtools"
+  cert_resolver: "ovh"
+  puid: 1000
+  pgid: 1000
+  docker_networks:
+    - proxy_network
+  composes:
+    - name: traefik
+      compose: network.yaml
+      volumes:
+        - letsencrypt
+      config:
+        - file: traefik.yaml
+          dst: letsencrypt/traefik.yaml
+    - name: slaves
+      compose: slave-containers.yaml
+    - name: devtools
+      volumes:
+        - forgejo
+        - redis_data
+        - pg_data
+
+#######################
+# Backup (UrBackup)
+#######################
+
+urbackup:
+  server_host: "{{ hostvars[groups['Master'][0]].services_ip }}"
+  backup_dirs: # Directories backed up by the client on each node
+    - "{{ docker.docker_dir }}/volumes"
+  authkey: "{{ urbackup_authkeys.tools }}" 
