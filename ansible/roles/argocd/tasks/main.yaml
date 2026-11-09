@@ -84,6 +84,34 @@
         sshPrivateKey: "{{ argocd_repo_ssh_key | b64encode }}"
   no_log: true
 
+- name: Create the namespaces of the bootstrap secrets
+  kubernetes.core.k8s:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+  loop: "{{ argocd_bootstrap_secrets | map(attribute='namespace') | unique }}"
+
+- name: Create the bootstrap secrets
+  kubernetes.core.k8s:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+      type: Opaque
+      data: "{{ dict(item.data.keys() | zip(item.data.values() | map('b64encode'))) }}"
+  loop: "{{ argocd_bootstrap_secrets }}"
+  loop_control:
+    label: "{{ item.namespace }}/{{ item.name }}"
+  no_log: true
+
 # Ansible owns only this Application; everything below bootstrap/ is in Git
 - name: Create the root application
   kubernetes.core.k8s:

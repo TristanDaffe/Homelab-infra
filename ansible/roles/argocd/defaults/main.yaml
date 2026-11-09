@@ -13,6 +13,17 @@ argocd_repo_url: ssh://git@git.autostack.ovh:222/Susu/Homelab-k8S.git
 argocd_repo_revision: main
 argocd_root_path: bootstrap
 
+# Secrets that apps deployed by Argo CD need but Git must not hold, created from
+# SOPS. Stopgap until External Secrets + Infisical runs in the cluster.
+argocd_bootstrap_secrets:
+  # OVH API keys for cert-manager's DNS-01 webhook (same keys as Traefik's)
+  - name: ovh-credentials
+    namespace: cert-manager
+    data:
+      applicationKey: "{{ ovh.application_key }}"
+      applicationSecret: "{{ ovh.application_secret }}"
+      applicationConsumerKey: "{{ ovh.consumer_key }}"
+
 # Minimal values for the first install: just enough to reach the repo. The full
 # values live in Homelab-k8S infrastructure/argocd/values.yaml and replace these
 # on the first self-sync.
