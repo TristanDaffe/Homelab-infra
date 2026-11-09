@@ -46,4 +46,7 @@ ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fet
   to `/etc/rancher/k3s/resolv.conf` and set as `resolv-conf` in
   `/etc/rancher/k3s/config.yaml`. The node's own resolv.conf is Tailscale
   MagicDNS (`100.100.100.100`), which pods cannot reach. Apply only that part
-  with `--tags k3s-dns` (restarts k3s on changed nodes, then CoreDNS once).
+  with `--tags k3s-config` (restarts k3s on changed nodes, then CoreDNS once).
+- `k3s_disable` (default `[servicelb]`) is written as `disable:` in the servers'
+  config.yaml: kube-vip (deployed by Argo CD from Homelab-k8S) owns the
+  LoadBalancer IPs, and ServiceLB would fight it. Also applied by `--tags k3s-config`.

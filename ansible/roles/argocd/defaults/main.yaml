@@ -13,6 +13,18 @@ argocd_repo_url: ssh://git@git.autostack.ovh:222/Susu/Homelab-k8S.git
 argocd_repo_revision: main
 argocd_root_path: bootstrap
 
+# Secrets that apps deployed by Argo CD need but Git must not hold, created from
+# SOPS. Only the "secret zero" is left here: the Infisical machine identity that
+# External Secrets logs in with. Every other secret lives in Infisical (project
+# homelab-k8s) and reaches the cluster through an ExternalSecret.
+argocd_bootstrap_secrets:
+  # Machine identity "k3s-external-secrets" (Universal Auth, Viewer on homelab-k8s)
+  - name: infisical-universal-auth
+    namespace: external-secrets
+    data:
+      clientId: "{{ infisical_k8s.client_id }}"
+      clientSecret: "{{ infisical_k8s.client_secret }}"
+
 # Minimal values for the first install: just enough to reach the repo. The full
 # values live in Homelab-k8S infrastructure/argocd/values.yaml and replace these
 # on the first self-sync.
