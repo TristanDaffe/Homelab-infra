@@ -1,8 +1,11 @@
 # Forgejo runner config (runner v13). Registration is offline via a shared
-# secret, so no .runner file is needed. The same secret must be registered once
-# on the Forgejo side:
-#   docker exec -u git devtools-forgejo-1 \
-#     forgejo forgejo-cli actions register --name devtools --secret <token>
+# secret, so no .runner file is needed. The same secret (forgejo_runner.token, 40
+# hex chars) must be registered once on the Forgejo side, at user scope so every
+# repo of Susu can use it (a repo scope hides the runner from other repos):
+#   docker exec -i -u git devtools-forgejo-1 sh -c 'cat > /tmp/s && \
+#     forgejo forgejo-cli actions register --secret-file /tmp/s --scope Susu \
+#     --name devtools --labels docker; rm -f /tmp/s' < secret-file
+# forgejo_runner.uuid = str(uuid.UUID(bytes=token[:16].encode()))
 log:
   level: info
   job_level: info
