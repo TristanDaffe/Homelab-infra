@@ -5,13 +5,16 @@
 - **PostgreSQL** — one leader (read/write), two replicas streaming from it
 - **Patroni** — runs PostgreSQL on each node, elects the leader, fails over
 - **etcd** — 3-member store where Patroni keeps the leader lock
+- **keepalived** — keeps the floating IP `192.168.129.140` on the current leader
+
+**Apps connect to `192.168.129.140:5432`** and always reach the read/write leader.
 
 What happens when a node goes down and comes back:
 
 | Node that goes down | While it is down | When it comes back |
 |---|---|---|
 | A replica | nothing changes | Patroni restarts it as a replica; it catches up from the leader |
-| The leader | after ~30 s a replica is promoted | `pg_rewind` turns it into a replica of the new leader; if that fails its data dir is wiped and re-cloned |
+| The leader | after ~30 s a replica is promoted and the floating IP moves to it | `pg_rewind` turns it into a replica of the new leader; if that fails its data dir is wiped and re-cloned |
 
 The cluster needs **2 of 3 nodes up** (etcd quorum). With only one node left,
 PostgreSQL is stopped/read-only until a second member returns.
@@ -43,6 +46,8 @@ patronictl -c /etc/patroni/config.yml switchover   # move the leader on purpose
 |---|---|---|
 | `postgresql_ha_version` | `"17"` | PostgreSQL major (must be in Debian's repo) |
 | `postgresql_ha_scope` | `homelab-postgres` | Patroni cluster name |
+| `postgresql_ha_vip` / `postgresql_ha_vip_prefix` | `192.168.129.140` / `23` | Floating IP (outside the DHCP pool) |
+| `postgresql_ha_vrrp_router_id` | `140` | VRRP group id, unique on the LAN |
 | `postgresql_ha_client_networks` | `[192.168.128.0/23]` | Allowed to connect to 5432 |
 | `postgresql_ha_replication_user` | `replicator` | Replication role |
 | `postgresql_ha_data_dir` | `/var/lib/postgresql/17/patroni` | PostgreSQL data |
@@ -52,18 +57,22 @@ patronictl -c /etc/patroni/config.yml switchover   # move the leader on purpose
 ## Firewall (UFW)
 
 - 22/tcp from anywhere
-- 2379, 2380 (etcd), 8008 (Patroni API), 5432 from the three members only
+- 2379, 2380 (etcd), 8008 (Patroni API), 5432, VRRP from the three members only
 - 5432 from `postgresql_ha_client_networks`
 - everything else incoming denied
 
 ## Not included (yet)
 
-- **A single endpoint for apps.** Clients must find the leader themselves:
-  libpq / JDBC accept several hosts —
-  `postgresql://.133,.134,.135/db?target_session_attrs=read-write`.
-  HAProxy or a VIP can come later.
 - **Backups.** Replicas are not backups — add `pg_dump` / WAL archiving to the NAS.
 - **TLS** on etcd and the Patroni API (firewalled to the members instead).
+
+## How the floating IP works
+
+keepalived runs on all three members and checks `http://127.0.0.1:8008/primary`
+every 2 s. Patroni answers 200 there only on the leader, so the replicas sit in
+VRRP `FAULT` state and only the leader can hold the IP. VRRP adverts are unicast
+between the members. Debian's `vip-manager` (1.0.2) was not usable: it only
+speaks etcd's v2 API, which etcd 3.5 disables.
 
 ## Replacing a dead member
 

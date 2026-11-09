@@ -1,6 +1,11 @@
 ---
 # A reload applies the new config without stopping PostgreSQL; settings that
 # need a restart show up as "Pending restart" in `patronictl list`.
+- name: Reload keepalived
+  ansible.builtin.systemd:
+    name: keepalived
+    state: reloaded
+
 - name: Reload Patroni
   ansible.builtin.systemd:
     name: patroni

@@ -18,6 +18,13 @@ postgresql_ha_etcd_initial_state: new
 
 postgresql_ha_replication_user: replicator
 
+# Floating IP that keepalived keeps on the current leader — apps connect here.
+# Must be outside the router's DHCP pool.
+postgresql_ha_vip: 192.168.129.140
+postgresql_ha_vip_prefix: 23
+# VRRP group id (1-255), unique among keepalived setups on the LAN
+postgresql_ha_vrrp_router_id: 140
+
 # Networks allowed to connect to PostgreSQL (5432) — apps, k3s nodes, admin
 postgresql_ha_client_networks:
   - 192.168.128.0/23   # = 192.168.128.0 – 192.168.129.255, the whole LAN
