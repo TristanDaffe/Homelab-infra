@@ -32,4 +32,4 @@
         groups['k3s'] | map('extract', hostvars, 'k3s_resolv_changed')
         | select('defined') | map('bool') | select | list | length > 0
       changed_when: true
-      tags: [k3s, k3s-dns]
+      tags: [k3s, k3s-config]
