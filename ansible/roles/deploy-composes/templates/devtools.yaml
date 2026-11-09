@@ -45,7 +45,7 @@ services:
   # Renovate is a one-shot CLI: rerun it on a fixed interval. It opens image
   # update PRs on this repo; repo-side behaviour lives in renovate.json.
   renovate:
-    image: ghcr.io/renovatebot/renovate:44.222.0
+    image: ghcr.io/renovatebot/renovate:44.224.0
     restart: unless-stopped
     depends_on:
       - forgejo
@@ -72,7 +72,7 @@ services:
       - wud.watch=false
 
   infisical-backend:
-    image: infisical/infisical:v0.167.6
+    image: infisical/infisical:v0.167.7
     restart: unless-stopped
     pull_policy: always
     depends_on:
