@@ -5,8 +5,8 @@
 keys:
   # Personal key (private half: ~/.config/sops/age/key.txt)
   - &personal_age_key age1fq6gfuafrfkcqy9p9mg48qmjwlyr3s5xmxwaz2uaxlscukcdt36q5qmen0
-  # Forgejo CI key (private half: SOPS_AGE_KEY repo secret)
-  - &forgejo_age_key age1h8mjx6hjjp04qhl5zmmghfnd7kgqa6dm4hcnj2yachzzud8395lsxrmf2t
+  # Forgejo CI key (private half: SOPS_AGE_KEY repo secret; local copy ~/.config/sops/age/forgejo-ci.txt). Rotated 2026-11-09
+  - &forgejo_age_key age1nycscjc8sxsveux36cdaya7dhmgced9fwahw2sjljxvwgcqvdv3swdgvaj
 
 creation_rules:
   - path_regex: secret\..*\.sops\.ya?ml$
