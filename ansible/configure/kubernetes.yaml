@@ -19,3 +19,17 @@
   roles:
     - role: k3s
       tags: [k3s]
+
+# CoreDNS reads its upstream servers when the pod starts: restart it once,
+# after every node has its new resolver file
+- name: Restart CoreDNS after a resolver change
+  hosts: k3s_server[0]
+  become: true
+  tasks:
+    - name: Restart CoreDNS
+      ansible.builtin.command: k3s kubectl -n kube-system rollout restart deployment/coredns
+      when: >-
+        groups['k3s'] | map('extract', hostvars, 'k3s_resolv_changed')
+        | select('defined') | map('bool') | select | list | length > 0
+      changed_when: true
+      tags: [k3s, k3s-dns]

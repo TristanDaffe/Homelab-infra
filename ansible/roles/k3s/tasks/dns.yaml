@@ -1,0 +1,46 @@
+---
+# Upstream DNS for pods (CoreDNS forwards to it). The nodes run Tailscale with
+# MagicDNS, so their resolv.conf points at 100.100.100.100, which pods cannot
+# use ("lookup git.autostack.ovh on 10.43.0.10:53: server misbehaving").
+# k3s reads /etc/rancher/k3s/config.yaml on install and on every start.
+- name: Create the k3s config directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0755"
+
+- name: Write the resolver file for pods
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/resolv.conf
+    content: |
+      {% for ns in k3s_pod_nameservers %}
+      nameserver {{ ns }}
+      {% endfor %}
+    mode: "0644"
+  register: k3s_resolv_file
+
+- name: Point k3s at the resolver file
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/k3s/config.yaml
+    regexp: '^resolv-conf:'
+    line: "resolv-conf: /etc/rancher/k3s/resolv.conf"
+    create: true
+    mode: "0600"
+  register: k3s_resolv_config
+
+- name: Remember whether the resolver changed (CoreDNS restart play)
+  ansible.builtin.set_fact:
+    k3s_resolv_changed: "{{ k3s_resolv_file is changed or k3s_resolv_config is changed }}"
+
+- name: Check whether k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+# New nodes pick the file up at install; existing ones need a restart. Running
+# pods keep running across a k3s service restart.
+- name: Restart k3s to apply the resolver
+  when: k3s_resolv_changed | bool and k3s_binary.stat.exists
+  ansible.builtin.systemd:
+    name: "{{ 'k3s' if inventory_hostname in (groups['k3s_server'] | default([])) else 'k3s-agent' }}"
+    state: restarted

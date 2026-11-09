@@ -12,6 +12,9 @@ collections:
   # nodesetup only
   - name: community.proxmox
     version: 2.1.0
+  # argocd role (Helm v4 support since 6.x)
+  - name: kubernetes.core
+    version: 6.6.0
   - name: community.sops
     version: 2.5.1
   # Alloy role (pulls community.grafana as a dependency)

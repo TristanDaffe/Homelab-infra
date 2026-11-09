@@ -13,6 +13,14 @@
     line: "127.0.1.1 {{ inventory_hostname }}"
     state: present
 
+- name: Give pods a usable upstream DNS
+  ansible.builtin.import_tasks: dns.yaml
+  tags: [k3s-dns]
+
+- name: Open the k3s ports in the firewall
+  ansible.builtin.import_tasks: firewall.yaml
+  tags: [k3s-firewall]
+
 # The official get.k3s.io script, downloaded to disk then run with a `creates:`
 # guard (same pattern as opkssh-server — no piping curl straight into a shell).
 - name: Download k3s install script
