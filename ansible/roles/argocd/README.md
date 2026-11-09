@@ -7,9 +7,8 @@ points it at `Susu/Homelab-k8S`. Runs on the first host of `k3s_server`.
 2. Installs the `argo-cd` chart **only if the `argocd` namespace does not exist**,
    with the minimal `argocd_bootstrap_values`. From then on Argo CD manages
    itself from `Homelab-k8S/bootstrap/argocd.yaml` — upgrade it there.
-3. Creates `argocd_bootstrap_secrets` (Secrets apps need that Git must not hold,
-   e.g. the OVH API keys for cert-manager) from SOPS — until External Secrets
-   replaces them.
+3. Creates `argocd_bootstrap_secrets` from SOPS: only the Infisical machine
+   identity External Secrets logs in with. Everything else comes from Infisical.
 4. Creates the repository Secret (SSH, read-only deploy key `argocd_repo_ssh_key`
    from SOPS) and the `root` Application syncing `bootstrap/`.
 
@@ -29,4 +28,4 @@ Deploy keys (read-only), otherwise `root` shows "repository not accessible".
 | `argocd_root_path` | `bootstrap` | Folder the `root` Application syncs |
 | `argocd_bootstrap_values` | minimal | Values for the first install (repo SSH host key, dex/notifications off) |
 | `argocd_repo_ssh_key` | — (SOPS) | Private deploy key |
-| `argocd_bootstrap_secrets` | `ovh-credentials` in `cert-manager` | `{name, namespace, data}` Secrets created from SOPS values |
+| `argocd_bootstrap_secrets` | `infisical-universal-auth` in `external-secrets` | `{name, namespace, data}` Secrets created from SOPS values |
