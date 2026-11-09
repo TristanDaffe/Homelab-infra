@@ -1,0 +1,110 @@
+---
+- name: Check the Homelab-k8S deploy key is available
+  ansible.builtin.assert:
+    that: argocd_repo_ssh_key is defined
+    fail_msg: argocd_repo_ssh_key (private deploy key for Homelab-k8S) is missing from secret.all.sops.yaml
+
+- name: Install the Python Kubernetes client
+  ansible.builtin.apt:
+    name: python3-kubernetes
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# One directory per Helm version + a symlink: bumping argocd_helm_version
+# installs the new binary next to the old one and repoints /usr/local/bin/helm
+- name: Create the Helm install directory
+  ansible.builtin.file:
+    path: /usr/local/lib/helm-{{ argocd_helm_version }}
+    state: directory
+    mode: "0755"
+
+- name: Download Helm (checksum verified)
+  ansible.builtin.get_url:
+    url: https://get.helm.sh/helm-{{ argocd_helm_version }}-linux-amd64.tar.gz
+    dest: /usr/local/lib/helm-{{ argocd_helm_version }}/helm.tar.gz
+    checksum: sha256:https://get.helm.sh/helm-{{ argocd_helm_version }}-linux-amd64.tar.gz.sha256sum
+    mode: "0644"
+
+- name: Unpack Helm
+  ansible.builtin.unarchive:
+    src: /usr/local/lib/helm-{{ argocd_helm_version }}/helm.tar.gz
+    dest: /usr/local/lib/helm-{{ argocd_helm_version }}
+    remote_src: true
+    extra_opts: [--strip-components=1]
+    include: [linux-amd64/helm]
+    creates: /usr/local/lib/helm-{{ argocd_helm_version }}/helm
+
+- name: Put Helm on the PATH
+  ansible.builtin.file:
+    src: /usr/local/lib/helm-{{ argocd_helm_version }}/helm
+    dest: /usr/local/bin/helm
+    state: link
+
+- name: Look for an existing Argo CD installation
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    kind: Namespace
+    name: "{{ argocd_namespace }}"
+  register: argocd_namespace_info
+
+# First bootstrap only: once installed, Argo CD manages itself and a Helm
+# upgrade from here would fight it
+- name: Install Argo CD
+  kubernetes.core.helm:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    name: argocd
+    chart_ref: argo-cd
+    chart_repo_url: https://argoproj.github.io/argo-helm
+    chart_version: "{{ argocd_chart_version }}"
+    release_namespace: "{{ argocd_namespace }}"
+    create_namespace: true
+    values: "{{ argocd_bootstrap_values }}"
+    wait: true
+    wait_timeout: 10m
+  when: argocd_namespace_info.resources | length == 0
+
+# `data` (base64) rather than `stringData`, which the API never returns and
+# would report a change on every run
+- name: Give Argo CD read access to Homelab-k8S
+  kubernetes.core.k8s:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: repo-homelab-k8s
+        namespace: "{{ argocd_namespace }}"
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      data:
+        type: "{{ 'git' | b64encode }}"
+        url: "{{ argocd_repo_url | b64encode }}"
+        sshPrivateKey: "{{ argocd_repo_ssh_key | b64encode }}"
+  no_log: true
+
+# Ansible owns only this Application; everything below bootstrap/ is in Git
+- name: Create the root application
+  kubernetes.core.k8s:
+    kubeconfig: "{{ argocd_kubeconfig }}"
+    state: present
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: root
+        namespace: "{{ argocd_namespace }}"
+      spec:
+        project: default
+        source:
+          repoURL: "{{ argocd_repo_url }}"
+          targetRevision: "{{ argocd_repo_revision }}"
+          path: "{{ argocd_root_path }}"
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: "{{ argocd_namespace }}"
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true

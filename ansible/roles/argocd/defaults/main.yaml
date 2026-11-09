@@ -1,0 +1,29 @@
+---
+# Helm CLI installed on the first k3s server (needed by kubernetes.core.helm)
+argocd_helm_version: v4.3.1
+
+# Chart for the FIRST install only. Afterwards Argo CD manages itself from
+# Homelab-k8S (bootstrap/argocd.yaml) — upgrade it there, not here.
+argocd_chart_version: "10.17.1"
+argocd_namespace: argocd
+argocd_kubeconfig: /etc/rancher/k3s/k3s.yaml
+
+# Repository Argo CD syncs from (read-only deploy key: argocd_repo_ssh_key in SOPS)
+argocd_repo_url: ssh://git@git.autostack.ovh:222/Susu/Homelab-k8S.git
+argocd_repo_revision: main
+argocd_root_path: bootstrap
+
+# Minimal values for the first install: just enough to reach the repo. The full
+# values live in Homelab-k8S infrastructure/argocd/values.yaml and replace these
+# on the first self-sync.
+argocd_bootstrap_values:
+  configs:
+    params:
+      server.insecure: true
+    ssh:
+      extraHosts: |
+        [git.autostack.ovh]:222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILFjjqs865c4gIBsY3sBbo9fDn8Xt0hupaU0mCAmBsMr
+  dex:
+    enabled: false
+  notifications:
+    enabled: false

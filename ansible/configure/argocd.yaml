@@ -1,0 +1,11 @@
+---
+# Bootstrap Argo CD on the k3s cluster. Afterwards Argo CD manages itself and
+# every app from Susu/Homelab-k8S; re-running only refreshes the repo secret and
+# the root Application. Run from ansible/:
+#   ansible-playbook -i configure/inventory-dev configure/argocd.yaml
+- name: Bootstrap Argo CD
+  hosts: k3s_server[0]
+  become: true
+  roles:
+    - role: argocd
+      tags: [argocd]
