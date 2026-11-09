@@ -1,3 +1,4 @@
+---
 ############
 # Kubernetes test node — control-plane + worker(s)   (TEMPLATE — edit the XXX)
 ############
@@ -15,9 +16,18 @@ proxmox_storage: vm-dev
 #   proxmox_api_token_id:     "root@pam!ansible"
 #   proxmox_api_token_secret: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-# --- No NAS / no LXC on the k8s node -------------------------------------
+# --- LXC containers on this node -----------------------------------------
 cifs_mounts: []
-lxc_containers: []
+lxc_containers:
+  - hostname: postgres-pve-dev-2
+    ctid: 227
+    template: "{{ debian_lxc_template }}"
+    memory: 4096
+    cores: 2
+    rootfs_gb: 64
+    ipconfig: "192.168.129.135/23,gw=192.168.128.1"
+    privileged: false
+    autostart: true
 
 # --- VMs on this node ----------------------------------------------------
 # cloud-init injects your ~/.ssh/id_rsa.pub automatically. VMIDs are
@@ -41,4 +51,11 @@ vms:
     autostart: true
     ipconfig0: "ip=192.168.129.131/23,gw=192.168.128.1"
 
-  # Workers meant for the OTHER node go in that node's host_vars file, not here.
+  - name: Warehouse
+    vmid: 128
+    cores: 2
+    memory: 8192
+    disk_gb: 128
+    ciuser: susu
+    autostart: true
+    ipconfig0: "ip=192.168.129.132/23,gw=192.168.128.1"

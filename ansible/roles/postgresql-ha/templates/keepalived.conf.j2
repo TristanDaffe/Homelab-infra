@@ -1,0 +1,40 @@
+# {{ ansible_managed }}
+global_defs {
+    enable_script_security
+    script_user nobody nogroup
+}
+
+# Patroni answers 200 on /primary only on the leader, 503 everywhere else
+vrrp_script patroni_primary {
+    script "/usr/bin/curl -sf -o /dev/null http://127.0.0.1:8008/primary"
+    interval 2
+    timeout 3
+    fall 2
+    rise 1
+}
+
+vrrp_instance postgres {
+    # All members are equal: the check above (no weight) puts every
+    # non-leader in FAULT, so only the leader can hold the IP.
+    state BACKUP
+    priority 100
+    interface {{ ansible_default_ipv4.interface }}
+    virtual_router_id {{ postgresql_ha_vrrp_router_id }}
+    advert_int 1
+
+    # Unicast between members instead of multicast
+    unicast_src_ip {{ ansible_host }}
+    unicast_peer {
+{% for host in groups['postgres_ha'] if host != inventory_hostname %}
+        {{ hostvars[host].ansible_host }}
+{% endfor %}
+    }
+
+    virtual_ipaddress {
+        {{ postgresql_ha_vip }}/{{ postgresql_ha_vip_prefix }} dev {{ ansible_default_ipv4.interface }}
+    }
+
+    track_script {
+        patroni_primary
+    }
+}
