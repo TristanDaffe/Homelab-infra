@@ -23,6 +23,19 @@ k3s_agent_extra_args: ""
 # ~/.kube/config (0600, owned by them) rather than relaxing this.
 k3s_kubeconfig_mode: "600"
 
+# Upstream DNS for pods (written to /etc/rancher/k3s/resolv.conf). Not the
+# node's resolv.conf: with Tailscale MagicDNS that is 100.100.100.100, which
+# pods cannot reach. LAN Pi-hole, same as lxc_nameserver in nodesetup.
+k3s_pod_nameservers:
+  - 192.168.129.47
+
+# UFW rules (applied only where UFW is installed). Keep the CIDRs in step with
+# --cluster-cidr / --service-cidr if those are ever set in *_extra_args.
+k3s_cluster_cidr: 10.42.0.0/16
+k3s_service_cidr: 10.43.0.0/16
+k3s_api_allowed_sources:
+  - 192.168.128.0/23
+
 # Pull the cluster kubeconfig back to the Ansible controller after install,
 # rewriting 127.0.0.1 -> the control node IP so it works remotely.
 k3s_fetch_kubeconfig: false

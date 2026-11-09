@@ -37,5 +37,13 @@ ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fet
 - Single control-plane (sqlite) by default. For embedded-etcd HA, add
   `--cluster-init` to the first server and `--server https://<first>:6443` to the
   others via `k3s_server_extra_args`.
-- If you later apply the `security` role (UFW), open k3s ports: 6443/tcp (API),
-  10250/tcp (kubelet), 8472/udp (flannel VXLAN), and 51820/udp if using wireguard.
+- Where UFW is installed (e.g. the `security` role ran on the node), the role
+  opens what k3s needs: the pod/service networks, 8472/udp (flannel VXLAN) and
+  10250/tcp (kubelet) between nodes, 6443/tcp (API) on servers from
+  `k3s_api_allowed_sources`. Apply only those rules with `--tags k3s-firewall`.
+  Add 51820/udp yourself if you switch flannel to wireguard.
+- Pods resolve through `k3s_pod_nameservers` (default the LAN Pi-hole), written
+  to `/etc/rancher/k3s/resolv.conf` and set as `resolv-conf` in
+  `/etc/rancher/k3s/config.yaml`. The node's own resolv.conf is Tailscale
+  MagicDNS (`100.100.100.100`), which pods cannot reach. Apply only that part
+  with `--tags k3s-dns` (restarts k3s on changed nodes, then CoreDNS once).

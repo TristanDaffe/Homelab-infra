@@ -1,0 +1,39 @@
+---
+# Only where UFW is installed (nodes that also got the security role). Without
+# these rules UFW drops pod traffic between nodes: pods on one node cannot reach
+# CoreDNS or services on the other ("dial udp 10.43.0.10:53: i/o timeout").
+# Rules follow https://docs.k3s.io/installation/requirements (UFW section).
+- name: Check whether UFW is installed
+  ansible.builtin.stat:
+    path: /usr/sbin/ufw
+  register: k3s_ufw_binary
+
+- name: Open the k3s ports in UFW
+  when: k3s_ufw_binary.stat.exists
+  block:
+    - name: Allow the pod and service networks
+      community.general.ufw:
+        rule: allow
+        from_ip: "{{ item }}"
+      loop:
+        - "{{ k3s_cluster_cidr }}"
+        - "{{ k3s_service_cidr }}"
+
+    - name: Allow flannel VXLAN and the kubelet between cluster nodes
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.0.port }}"
+        proto: "{{ item.0.proto }}"
+        from_ip: "{{ hostvars[item.1].ansible_host }}"
+      loop: "{{ [{'port': '8472', 'proto': 'udp'}, {'port': '10250', 'proto': 'tcp'}] | product(groups['k3s'] | default([])) | list }}"
+      loop_control:
+        label: "{{ item.0.port }}/{{ item.0.proto }} from {{ item.1 }}"
+
+    - name: Allow the Kubernetes API on servers
+      when: inventory_hostname in (groups['k3s_server'] | default([]))
+      community.general.ufw:
+        rule: allow
+        port: "{{ k3s_api_port }}"
+        proto: tcp
+        from_ip: "{{ item }}"
+      loop: "{{ k3s_api_allowed_sources }}"
