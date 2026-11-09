@@ -230,11 +230,11 @@
       ping: https://git.{{ devtools_domain }}
   - CI:
       icon: mdi-rocket-launch
-      href: https://git.{{ devtools_domain }}/Susu/Ansible-homelab/actions
+      href: https://git.{{ devtools_domain }}/Susu/Homelab-infra/actions
       description: Pipelines Forgejo Actions
   - Renovate:
       icon: renovate.png
-      href: https://git.{{ devtools_domain }}/Susu/Ansible-homelab/issues/6
+      href: https://git.{{ devtools_domain }}/Susu/Homelab-infra/issues?q=Dependency+Dashboard
       description: Mises à jour des dépendances
   - Infisical:
       icon: infisical.png

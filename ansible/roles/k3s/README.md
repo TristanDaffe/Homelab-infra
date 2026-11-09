@@ -25,9 +25,9 @@ See `defaults/main.yaml`. Most-used:
 ## Usage
 
 ```bash
-ansible-playbook -i configure/inventory configure/kubernetes.yaml
-# fetch a ready-to-use kubeconfig to the repo root:
-ansible-playbook -i configure/inventory configure/kubernetes.yaml -e k3s_fetch_kubeconfig=true
+ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml
+# fetch a ready-to-use kubeconfig next to the playbook (configure/k3s-kubeconfig.yaml, gitignored):
+ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fetch_kubeconfig=true
 ```
 
 ## Notes

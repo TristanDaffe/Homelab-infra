@@ -4,9 +4,6 @@
     "config:recommended"
   ],
   "dependencyDashboard": true,
-  "ignorePaths": [
-    "archive/**"
-  ],
   "platformAutomerge": true,
   "prHourlyLimit": 0,
   "customManagers": [
@@ -14,7 +11,7 @@
       "customType": "regex",
       "description": "Docker images in the deploy-composes Jinja2 templates: not named compose*.yml, and the {% %} blocks are not valid YAML for the docker-compose manager; tags templated with {{ }} are left to their own manager",
       "managerFilePatterns": [
-        "/^roles/deploy-composes/templates/[^/]+\\.ya?ml$/"
+        "/^ansible/roles/deploy-composes/templates/[^/]+\\.ya?ml$/"
       ],
       "matchStrings": [
         "\\n[ \\t]*image:[ \\t]*\"?(?<depName>[^\\s:@\"]+):(?<currentValue>[^\\s@\"{][^\\s@\"]*)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
@@ -25,7 +22,7 @@
       "customType": "regex",
       "description": "Shared Immich version in media.yaml, looked up through immich-server",
       "managerFilePatterns": [
-        "/^roles/deploy-composes/templates/media\\.yaml$/"
+        "/^ansible/roles/deploy-composes/templates/media\\.yaml$/"
       ],
       "matchStrings": [
         "\\{%-?\\s*set immich_version = \"(?<currentValue>[^\"]+)\"\\s*-?%\\}"

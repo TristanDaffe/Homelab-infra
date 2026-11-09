@@ -1,5 +1,5 @@
 ---
-# Runs configure/configure.yaml against the homelab nodes.
+# Runs ansible/configure/configure.yaml against the homelab nodes.
 #   pull_request      → lint only (syntax-check + ansible-lint), no secrets, no node access
 #   push to main      → lint, then apply
 #   workflow_dispatch → lint, then apply, optionally limited to tags / hosts
@@ -16,19 +16,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'configure/**'
-      - 'roles/**'
-      - 'ansible.cfg'
-      - 'requirements.yml'
-      - '.ansible-lint'
+      - 'ansible/**'
       - '.forgejo/workflows/configure.yaml'
   pull_request:
     paths:
-      - 'configure/**'
-      - 'roles/**'
-      - 'ansible.cfg'
-      - 'requirements.yml'
-      - '.ansible-lint'
+      - 'ansible/**'
       - '.forgejo/workflows/configure.yaml'
   workflow_dispatch:
     inputs:
@@ -49,6 +41,11 @@ env:
   ANSIBLE_LINT_VERSION: '26.10.1'
   SOPS_VERSION: '3.13.3'
 
+# All Ansible commands run from ansible/ (ansible.cfg, requirements.yml, inventories)
+defaults:
+  run:
+    working-directory: ansible
+
 jobs:
   lint:
     runs-on: docker
@@ -56,7 +53,7 @@ jobs:
     container:
       image: node:26-trixie
     env:
-      ANSIBLE_CONFIG: ${{ github.workspace }}/ansible.cfg
+      ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
       ANSIBLE_FORCE_COLOR: '1'
     steps:
       - uses: actions/checkout@v7
@@ -85,7 +82,7 @@ jobs:
       image: node:26-trixie
     env:
       SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
-      ANSIBLE_CONFIG: ${{ github.workspace }}/ansible.cfg
+      ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
       ANSIBLE_FORCE_COLOR: '1'
     steps:
       - uses: actions/checkout@v7

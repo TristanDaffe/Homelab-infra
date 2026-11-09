@@ -12,5 +12,4 @@ rules:
     check-keys: false
 
 ignore: |
-  archive/
   .git/

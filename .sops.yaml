@@ -1,7 +1,7 @@
 ---
 # Recipients for every SOPS-encrypted secrets file in the repo.
 # After changing the recipient list, re-encrypt existing files with:
-#   sops updatekeys configure/group_vars/all/secret.all.sops.yaml
+#   sops updatekeys ansible/configure/group_vars/all/secret.all.sops.yaml
 keys:
   # Personal key (private half: ~/.config/sops/age/key.txt)
   - &personal_age_key age1fq6gfuafrfkcqy9p9mg48qmjwlyr3s5xmxwaz2uaxlscukcdt36q5qmen0
