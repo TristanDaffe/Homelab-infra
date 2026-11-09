@@ -4,6 +4,14 @@ hostname: warehouse
 tailscale_ip:
 mount_nas: false
 
+nfs_server_exports:
+  - path: /srv/nfs
+    clients:
+      - network: 192.168.129.0/23
+        options: rw,sync,no_subtree_check
+nfs_server_firewall_sources:
+  - 192.168.129.0/23
+
 #######################
 # Docker
 #######################
@@ -32,4 +40,3 @@ docker:
           uid: 10001
           gid: 10001
         - postgres 
-

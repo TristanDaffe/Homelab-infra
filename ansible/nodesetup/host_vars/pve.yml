@@ -63,3 +63,4 @@ lxc_containers:
       - src: /mnt/pve/wd2/mac-mini
         dst: /media
         mp_index: 1
+

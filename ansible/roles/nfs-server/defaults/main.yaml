@@ -1,0 +1,20 @@
+---
+# NFS exports. Each entry has a local path and one or more client definitions:
+#
+# nfs_server_exports:
+#   - path: /srv/nfs
+#     clients:
+#       - network: 192.168.129.0/23
+#         options: rw,sync,no_subtree_check
+nfs_server_exports: []
+
+nfs_server_package: nfs-kernel-server
+nfs_server_service: nfs-server
+nfs_server_exports_file: /etc/exports.d/ansible.exports
+
+# UFW is already enabled by the security role before this role runs.
+nfs_server_firewall_enabled: true
+nfs_server_firewall_sources: []
+nfs_server_firewall_ports:
+  - '111'
+  - '2049'

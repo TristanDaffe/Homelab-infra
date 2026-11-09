@@ -1,0 +1,42 @@
+---
+- name: Install NFS server
+  ansible.builtin.package:
+    name: "{{ nfs_server_package }}"
+    state: present
+
+- name: Create NFS export directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  loop: "{{ nfs_server_exports }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Configure NFS exports
+  ansible.builtin.template:
+    src: exports.j2
+    dest: "{{ nfs_server_exports_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload NFS exports
+
+- name: Enable and start NFS server
+  ansible.builtin.service:
+    name: "{{ nfs_server_service }}"
+    enabled: true
+    state: started
+
+- name: Allow NFS traffic from configured clients
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.0 }}"
+    proto: "{{ item.1 }}"
+    from_ip: "{{ item.2 }}"
+  loop: "{{ nfs_server_firewall_ports | product(['tcp', 'udp'], nfs_server_firewall_sources) | list }}"
+  when:
+    - nfs_server_firewall_enabled | bool
+    - nfs_server_firewall_sources | length > 0

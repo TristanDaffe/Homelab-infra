@@ -1,0 +1,3 @@
+{% for export in nfs_server_exports %}
+{{ export.path }}{% for client in export.clients %} {{ client.network }}({{ client.options | default('rw,sync,no_subtree_check') }}){% endfor %}
+{% endfor %}

@@ -19,12 +19,19 @@
 
     - role: docker
       tags: [docker]
+      when: "'postgres_ha' not in group_names"
+
+    - role: nfs-server
+      tags: [nfs-server]
+      when: nfs_server_exports | default([]) | length > 0
 
     - role: deploy-composes
       tags: [deploy-composes]
+      when: "'postgres_ha' not in group_names"
 
     - role: recap
       tags: [recap]
 
     - role: docker-maintenance
       tags: [docker-maintenance]
+      when: "'postgres_ha' not in group_names"

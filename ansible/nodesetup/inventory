@@ -7,6 +7,6 @@
 # Run every node:   ansible-playbook -i inventory nodesetup.yaml
 # One node only:    ansible-playbook -i inventory nodesetup.yaml --limit pve-k8s
 [proxmox]
-# pve
+pve
 pve-k8s
 pve-dev
