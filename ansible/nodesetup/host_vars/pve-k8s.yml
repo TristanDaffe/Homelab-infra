@@ -36,8 +36,9 @@ vms:
   - name: k8s-cp-1                      # control-plane
     vmid: 130
     cores: 2
-    memory: 4096                        # MB
+    memory: 8192                        # MB
     disk_gb: 40
+    data_disk_gb: 40                    # scsi1, mounted at /var/lib/longhorn
     ciuser: susu
     autostart: true
     ipconfig0: "ip=192.168.129.130/23,gw=192.168.128.1"
@@ -45,8 +46,9 @@ vms:
   - name: k8s-worker-1
     vmid: 131
     cores: 2
-    memory: 4096
+    memory: 8192
     disk_gb: 40
+    data_disk_gb: 40                    # scsi1, mounted at /var/lib/longhorn
     ciuser: susu
     autostart: true
     ipconfig0: "ip=192.168.129.131/23,gw=192.168.128.1"

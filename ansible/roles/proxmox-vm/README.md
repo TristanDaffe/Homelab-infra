@@ -22,6 +22,8 @@ Per-VM config comes from the loop variable `vm`; required play vars (`proxmox_no
 ## Behavior notes
 
 - `disk_gb` only **grows** the disk (Proxmox limitation); the resize is skipped when scsi0 is already at or above the requested size.
+- `data_disk_gb` attaches a second disk `scsi1` (thin, `discard=on`) when the VM has none; it is hot-plugged, no reboot. Never resized or removed by the role.
+- `memory` / `cores` are kept in step with `qm set` when they differ (the module alone only creates). They apply at the VM's **next restart**; a `changed` on that task means `qm reboot <vmid>` is still to do; the role never reboots.
 - The `qm` tasks run on the Proxmox host itself; the API tasks are delegated to localhost.
 
 ## Example

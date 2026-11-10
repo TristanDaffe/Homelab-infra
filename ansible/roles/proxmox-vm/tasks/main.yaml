@@ -35,12 +35,11 @@
   become: false
 
 # Runs on the Proxmox host (no delegate_to) — qm is only available there.
-- name: Read current scsi0 size
+- name: Read the current VM config
   ansible.builtin.command: "qm config {{ vm.vmid }}"
   register: vm_config
   changed_when: false
   become: true
-  when: vm.disk_gb is defined
 
 # Proxmox can only grow disks: resizing to the current size errors out,
 # so only resize when the configured size is actually larger.
@@ -51,6 +50,30 @@
   when:
     - vm.disk_gb is defined
     - ((vm_config.stdout | regex_search('scsi0:[^\\n]*size=(\\d+)G', '\\1') | default([0], true)) | first | int) < (vm.disk_gb | int)
+
+# Optional second disk (e.g. Longhorn data on k3s nodes). Only attached when
+# the VM has no scsi1 yet; Proxmox hot-plugs it into a running VM.
+- name: Attach the data disk
+  ansible.builtin.command: >-
+    qm set {{ vm.vmid }} --scsi1
+    {{ vm.storage | default(proxmox_storage | default('local-lvm')) }}:{{ vm.data_disk_gb }},discard=on
+  changed_when: true
+  become: true
+  when:
+    - vm.data_disk_gb is defined
+    - vm_config.stdout is not search('(?m)^scsi1:')
+
+# proxmox_kvm with state=present only creates; keep memory/cores in step with
+# the definition. The new values apply at the VM's next restart — the role does
+# not reboot it; a "changed" here means `qm reboot <vmid>` is still to do.
+- name: Update memory and cores (applied at the VM's next restart)
+  ansible.builtin.command: >-
+    qm set {{ vm.vmid }} --memory {{ vm.memory | default(2048) }} --cores {{ vm.cores | default(2) }}
+  changed_when: true
+  become: true
+  when: >-
+    (vm_config.stdout | regex_search('(?m)^memory: (\\d+)', '\\1') | default(['0'], true) | first | int) != (vm.memory | default(2048) | int)
+    or (vm_config.stdout | regex_search('(?m)^cores: (\\d+)', '\\1') | default(['0'], true) | first | int) != (vm.cores | default(2) | int)
 
 - name: Start VM
   community.proxmox.proxmox_kvm:

@@ -50,3 +50,7 @@ ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fet
 - `k3s_disable` (default `[servicelb]`) is written as `disable:` in the servers'
   config.yaml: kube-vip (deployed by Argo CD from Homelab-k8S) owns the
   LoadBalancer IPs, and ServiceLB would fight it. Also applied by `--tags k3s-config`.
+- Longhorn prerequisites (`--tags k3s-longhorn`): `open-iscsi` + `nfs-common`,
+  `iscsid` running, `iscsi_tcp` loaded, multipathd blacklisting `sd*` (it would
+  grab Longhorn's iSCSI disks), and the data disk `k3s_longhorn_disk` (scsi1 from
+  proxmox-vm `data_disk_gb`) formatted ext4 once and mounted at `/var/lib/longhorn`.

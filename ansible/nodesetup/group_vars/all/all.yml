@@ -55,7 +55,7 @@ lxc_nameserver: 192.168.129.47
 # runs on the node itself), so each node only provisions the vms/lxc in its
 # OWN file. Running the whole playbook handles every node in one pass.
 #
-# vm entry fields:  name, vmid, cores, memory (MB), disk_gb, ciuser,
+# vm entry fields:  name, vmid, cores, memory (MB), disk_gb, data_disk_gb, ciuser,
 #                   autostart, ipconfig0 ("ip=<cidr>,gw=<gw>" or "ip=dhcp")
 # lxc entry fields: hostname, ctid, cores, memory, rootfs_gb, ipconfig,
 #                   privileged, autostart, features[], enable_tun,

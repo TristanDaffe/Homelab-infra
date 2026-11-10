@@ -1,0 +1,67 @@
+---
+# Node prerequisites for Longhorn (deployed by Argo CD from Homelab-k8S).
+# https://longhorn.io/docs/latest/deploy/install/#installation-requirements
+- name: Install the iSCSI and NFS clients
+  ansible.builtin.apt:
+    name:
+      - open-iscsi   # attaches Longhorn volumes as block devices
+      - nfs-common   # ReadWriteMany volumes
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Load the iSCSI transport at boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/longhorn.conf
+    content: "iscsi_tcp\n"
+    mode: "0644"
+
+- name: Load the iSCSI transport now
+  community.general.modprobe:
+    name: iscsi_tcp
+    state: present
+
+- name: Run iscsid
+  ansible.builtin.systemd:
+    name: iscsid
+    enabled: true
+    state: started
+
+# multipathd claims Longhorn's iSCSI disks (sdX) and the volume then fails to
+# mount ("already mounted or mount point busy"). The VMs use no multipath.
+- name: Keep multipathd away from sd devices
+  ansible.builtin.copy:
+    dest: /etc/multipath.conf
+    content: |
+      defaults {
+          user_friendly_names yes
+      }
+      blacklist {
+          devnode "^sd[a-z0-9]+"
+      }
+    mode: "0644"
+  notify: Restart multipathd
+
+# Dedicated data disk (scsi1, proxmox-vm data_disk_gb). Skipped when absent:
+# Longhorn then uses the OS disk.
+- name: Look for the Longhorn data disk
+  ansible.builtin.stat:
+    path: "{{ k3s_longhorn_disk }}"
+  register: k3s_longhorn_disk_stat
+
+- name: Prepare the Longhorn data disk
+  when: k3s_longhorn_disk_stat.stat.exists
+  block:
+    # Creates the filesystem only when the disk has none: never reformats
+    - name: Create the filesystem
+      community.general.filesystem:
+        dev: "{{ k3s_longhorn_disk }}"
+        fstype: ext4
+
+    - name: Mount it at /var/lib/longhorn
+      ansible.posix.mount:
+        path: /var/lib/longhorn
+        src: "{{ k3s_longhorn_disk }}"
+        fstype: ext4
+        opts: defaults,nofail
+        state: mounted
