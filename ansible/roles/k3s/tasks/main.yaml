@@ -34,18 +34,22 @@
     mode: '0755'
 
 # ---------------------------------------------------------------------------
-# Control-plane (first host in k3s_server)
+# Servers (k3s_server). The first one bootstraps the embedded etcd cluster and
+# exposes the join token; the others join it as servers. With the default
+# linear strategy every task finishes on all hosts before the next starts, so
+# the join only begins once the first server is up. Running a joining server
+# alone (--limit) fails: it needs the first server's token from this play.
 # ---------------------------------------------------------------------------
-- name: Install and expose token — k3s server
-  when: inventory_hostname in (groups['k3s_server'] | default([]))
+- name: Install k3s on the first server and expose the token
+  when: inventory_hostname == (groups['k3s_server'] | default([None]))[0]
   block:
-    - name: Install k3s (server)
+    - name: Install k3s (first server, bootstraps etcd)
       ansible.builtin.command: /usr/local/bin/k3s-install.sh
       args:
         creates: /usr/local/bin/k3s
       environment:
         INSTALL_K3S_VERSION: "{{ k3s_version }}"
-        INSTALL_K3S_EXEC: "server --write-kubeconfig-mode {{ k3s_kubeconfig_mode }} {{ k3s_server_extra_args }}"
+        INSTALL_K3S_EXEC: "server --cluster-init --write-kubeconfig-mode {{ k3s_kubeconfig_mode }} {{ k3s_server_extra_args }}"
 
     - name: Wait for the node token to be written
       ansible.builtin.wait_for:
@@ -78,8 +82,19 @@
           delegate_to: localhost
           become: false
 
+- name: Install k3s on the other servers (join the first)
+  when: inventory_hostname in (groups['k3s_server'] | default([]))[1:]
+  ansible.builtin.command: /usr/local/bin/k3s-install.sh
+  args:
+    creates: /usr/local/bin/k3s
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    K3S_URL: "https://{{ k3s_control_node }}:{{ k3s_api_port }}"
+    K3S_TOKEN: "{{ hostvars[groups['k3s_server'][0]].k3s_token }}"
+    INSTALL_K3S_EXEC: "server --write-kubeconfig-mode {{ k3s_kubeconfig_mode }} {{ k3s_server_extra_args }}"
+
 # ---------------------------------------------------------------------------
-# Workers (k3s_agent group) — join the control node
+# Agents (k3s_agent group, optional) — join the first server
 # ---------------------------------------------------------------------------
 - name: Install k3s agent
   when: inventory_hostname in (groups['k3s_agent'] | default([]))

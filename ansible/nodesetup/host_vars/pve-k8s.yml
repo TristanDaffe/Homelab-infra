@@ -1,6 +1,6 @@
 ---
 ############
-# Kubernetes test node — control-plane + worker(s)   (TEMPLATE — edit the XXX)
+# Dev node 2 (pve-dev-2): k3s servers k8s-1 + k8s-2, one Postgres HA member
 ############
 
 # --- Connection ----------------------------------------------------------
@@ -33,31 +33,23 @@ lxc_containers:
 # cloud-init injects your ~/.ssh/id_rsa.pub automatically. VMIDs are
 # cluster-wide unique — keep them clear of prod (125 / 223 / 224).
 vms:
-  - name: k8s-cp-1                      # control-plane
+  # k3s servers (embedded etcd); k8s-3 is on pve-dev. All three run workloads.
+  - name: k8s-1
     vmid: 130
-    cores: 2
-    memory: 8192                        # MB
+    cores: 3
+    memory: 14336                       # MB
     disk_gb: 40
-    data_disk_gb: 40                    # scsi1, mounted at /var/lib/longhorn
+    data_disk_gb: 60                    # scsi1, mounted at /var/lib/longhorn
     ciuser: susu
     autostart: true
     ipconfig0: "ip=192.168.129.130/23,gw=192.168.128.1"
 
-  - name: k8s-worker-1
+  - name: k8s-2
     vmid: 131
-    cores: 2
-    memory: 8192
+    cores: 3
+    memory: 14336
     disk_gb: 40
-    data_disk_gb: 40                    # scsi1, mounted at /var/lib/longhorn
+    data_disk_gb: 60
     ciuser: susu
     autostart: true
     ipconfig0: "ip=192.168.129.131/23,gw=192.168.128.1"
-
-  - name: Warehouse
-    vmid: 128
-    cores: 2
-    memory: 8192
-    disk_gb: 128
-    ciuser: susu
-    autostart: true
-    ipconfig0: "ip=192.168.129.132/23,gw=192.168.128.1"

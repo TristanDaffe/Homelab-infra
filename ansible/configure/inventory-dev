@@ -1,6 +1,5 @@
 [docker_hosts]
 DevTools ansible_host=192.168.129.129
-Warehouse ansible_host=192.168.129.132
 
 [postgres_ha]
 postgres-pve ansible_host=192.168.129.133
@@ -13,11 +12,14 @@ ansible_ssh_user=root
 [Tailscale:children]
 docker_hosts
 
+# All three are servers (embedded etcd, quorum 2 of 3) and run workloads.
+# The first one bootstraps the cluster (--cluster-init); the others join it.
 [k3s_server]
-k8s-cp-1 ansible_host=192.168.129.130
+k8s-1 ansible_host=192.168.129.130
+k8s-2 ansible_host=192.168.129.131
+k8s-3 ansible_host=192.168.129.138
 
 [k3s_agent]
-k8s-worker-1 ansible_host=192.168.129.131
 
 [k3s:children]
 k3s_server

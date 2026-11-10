@@ -50,3 +50,14 @@ vms:
     ciuser: susu
     autostart: true
     ipconfig0: "ip=192.168.129.129/23,gw=192.168.128.1"
+
+  # Third k3s server (embedded etcd quorum); smaller: DevTools shares the host
+  - name: k8s-3
+    vmid: 132
+    cores: 2
+    memory: 5120
+    disk_gb: 40
+    data_disk_gb: 60                    # scsi1, mounted at /var/lib/longhorn
+    ciuser: susu
+    autostart: true
+    ipconfig0: "ip=192.168.129.138/23,gw=192.168.128.1"

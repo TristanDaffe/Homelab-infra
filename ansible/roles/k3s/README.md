@@ -3,12 +3,12 @@
 Installs a [k3s](https://k3s.io) cluster on provisioned nodes using the official
 `get.k3s.io` install script.
 
-- Hosts in the **`k3s_server`** group become control-plane nodes. The first one
-  is installed as the server, and its join token is read and exposed as a fact.
-- Hosts in the **`k3s_agent`** group join that server as workers.
-
-Run the two plays in order via `configure/kubernetes.yaml` (servers first, then
-agents) so the agents can read the token from the server.
+- Every host in **`k3s_server`** is a server (control plane + workloads) with
+  **embedded etcd**. The first one bootstraps the cluster (`--cluster-init`) and
+  exposes its join token as a fact; the others join it as servers in the same
+  play. Use an odd number (3): etcd needs a majority, so 2 servers tolerate no
+  failure.
+- Hosts in the optional **`k3s_agent`** group join as workers.
 
 ## Key variables
 
@@ -34,12 +34,12 @@ ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fet
 
 - The install is guarded by `creates: /usr/local/bin/k3s`, so re-runs are no-ops
   once k3s is present — changing `*_extra_args` later won't re-apply on its own.
-- Single control-plane (sqlite) by default. For embedded-etcd HA, add
-  `--cluster-init` to the first server and `--server https://<first>:6443` to the
-  others via `k3s_server_extra_args`.
+- A joining server can't be installed alone (`--limit`): it needs the first
+  server's token, set earlier in the same play.
 - Where UFW is installed (e.g. the `security` role ran on the node), the role
   opens what k3s needs: the pod/service networks, 8472/udp (flannel VXLAN) and
-  10250/tcp (kubelet) between nodes, 6443/tcp (API) on servers from
+  10250/tcp (kubelet) between nodes, 2379-2380/tcp (etcd) between servers,
+  6443/tcp (API) on servers from
   `k3s_api_allowed_sources`. Apply only those rules with `--tags k3s-firewall`.
   Add 51820/udp yourself if you switch flannel to wireguard.
 - Pods resolve through `k3s_pod_nameservers` (default the LAN Pi-hole), written

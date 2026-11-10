@@ -29,6 +29,15 @@
       loop_control:
         label: "{{ item.0.port }}/{{ item.0.proto }} from {{ item.1 }}"
 
+    - name: Allow embedded etcd between servers
+      when: inventory_hostname in (groups['k3s_server'] | default([]))
+      community.general.ufw:
+        rule: allow
+        port: "2379:2380"
+        proto: tcp
+        from_ip: "{{ hostvars[item].ansible_host }}"
+      loop: "{{ groups['k3s_server'] | default([]) }}"
+
     - name: Allow the Kubernetes API on servers
       when: inventory_hostname in (groups['k3s_server'] | default([]))
       community.general.ufw:
