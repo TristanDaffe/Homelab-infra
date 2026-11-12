@@ -34,7 +34,7 @@ extra_packages:
   - vim
   - htop
   - python3-jsondiff
-  - neofetch
+  - fastfetch 
   - qemu-guest-agent
 
 allow_reboot: false
