@@ -54,3 +54,7 @@ ansible-playbook -i configure/inventory-dev configure/kubernetes.yaml -e k3s_fet
   `iscsid` running, `iscsi_tcp` loaded, multipathd blacklisting `sd*` (it would
   grab Longhorn's iSCSI disks), and the data disk `k3s_longhorn_disk` (scsi1 from
   proxmox-vm `data_disk_gb`) formatted ext4 once and mounted at `/var/lib/longhorn`.
+- `k3s_kube_apiserver_args` (config.yaml `kube-apiserver-arg`, servers): default
+  30 s instead of 300 s before pods leave an unreachable/not-ready node. Applies
+  to pods created afterwards. Config changes restart the servers one at a time
+  (`--tags k3s-config`), each waiting for its API before the next.
