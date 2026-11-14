@@ -38,6 +38,14 @@ k3s_disable:
 # and mounted at /var/lib/longhorn. Stable path on Proxmox virtio-scsi.
 k3s_longhorn_disk: /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
 
+# kube-apiserver flags (servers, config.yaml). Pods leave an unreachable or
+# not-ready node after 30 s instead of the default 300 s, so single-replica
+# apps on a dead node come back elsewhere quickly. Only applies to pods created
+# after the change (the toleration is added when a pod is admitted).
+k3s_kube_apiserver_args:
+  - default-not-ready-toleration-seconds=30
+  - default-unreachable-toleration-seconds=30
+
 # UFW rules (applied only where UFW is installed). Keep the CIDRs in step with
 # --cluster-cidr / --service-cidr if those are ever set in *_extra_args.
 k3s_cluster_cidr: 10.42.0.0/16

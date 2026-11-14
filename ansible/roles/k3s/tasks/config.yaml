@@ -41,6 +41,17 @@
     mode: "0600"
   register: k3s_disable_config
 
+# Extra kube-apiserver flags, servers only (k3s_kube_apiserver_args)
+- name: Set kube-apiserver arguments
+  when: inventory_hostname in (groups['k3s_server'] | default([]))
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/k3s/config.yaml
+    regexp: '^kube-apiserver-arg:'
+    line: "kube-apiserver-arg: {{ k3s_kube_apiserver_args | to_json }}"
+    create: true
+    mode: "0600"
+  register: k3s_apiserver_config
+
 - name: Remember whether the resolver changed (CoreDNS restart play)
   ansible.builtin.set_fact:
     k3s_resolv_changed: "{{ k3s_resolv_file is changed or k3s_resolv_config is changed }}"
@@ -51,9 +62,25 @@
   register: k3s_binary
 
 # New nodes pick the file up at install; existing ones need a restart. Running
-# pods keep running across a k3s service restart.
+# pods keep running across a k3s service restart. One node at a time, each
+# server waiting until its API is ready: restarting every server together would
+# drop the etcd quorum.
 - name: Restart k3s to apply the config
-  when: (k3s_resolv_changed | bool or k3s_disable_config is changed) and k3s_binary.stat.exists
-  ansible.builtin.systemd:
-    name: "{{ 'k3s' if inventory_hostname in (groups['k3s_server'] | default([])) else 'k3s-agent' }}"
-    state: restarted
+  when: >-
+    (k3s_resolv_changed | bool or k3s_disable_config is changed or k3s_apiserver_config is changed)
+    and k3s_binary.stat.exists
+  throttle: 1
+  ansible.builtin.shell: |
+    set -e
+    {% if inventory_hostname in (groups['k3s_server'] | default([])) %}
+    systemctl restart k3s
+    for i in $(seq 1 90); do
+      k3s kubectl get --raw /readyz >/dev/null 2>&1 && exit 0
+      sleep 2
+    done
+    echo "k3s API not ready 180 s after restart" >&2
+    exit 1
+    {% else %}
+    systemctl restart k3s-agent
+    {% endif %}
+  changed_when: true
