@@ -74,17 +74,6 @@ docker:
         - path: pocket-id
           uid: 65532
           gid: 65532
-        - speedtest-tracker
-        - homepage/config
-      config:
-        - file: homepage/settings.yaml
-          dst: homepage/config/settings.yaml
-        - file: homepage/services.yaml
-          dst: homepage/config/services.yaml
-        - file: homepage/bookmarks.yaml
-          dst: homepage/config/bookmarks.yaml
-        - file: homepage/widgets.yaml
-          dst: homepage/config/widgets.yaml
     - name: system
       compose: system.yaml
       volumes:

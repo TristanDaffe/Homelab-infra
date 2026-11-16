@@ -48,7 +48,6 @@ docker:
         - shelfmark
         - shelfmark-2
         - prowlarr
-        - seer
         - sonarr
         - radarr
         - bazarr
