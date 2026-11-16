@@ -126,7 +126,7 @@ services:
       - "traefik.http.routers.sonarr-api.priority=100"
 
   radarr:
-    image: ghcr.io/linuxserver/radarr:6.4.4
+    image: ghcr.io/linuxserver/radarr:7.0.3
     restart: unless-stopped
     environment:
       - PUID={{ nas.puid }}
