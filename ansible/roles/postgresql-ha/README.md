@@ -53,6 +53,7 @@ patronictl -c /etc/patroni/config.yml switchover   # move the leader on purpose
 | `postgresql_ha_data_dir` | `/var/lib/postgresql/17/patroni` | PostgreSQL data |
 | `postgresql_ha_etcd_data_dir` | `/var/lib/etcd/postgres-ha` | etcd data |
 | `postgresql_ha_etcd_initial_state` | `new` | `existing` when re-adding a member |
+| `postgresql_ha_databases` | `[]` | App databases `{name, owner, password}`, created through the floating IP (`--tags postgresql-ha-databases`) |
 
 ## Firewall (UFW)
 

@@ -32,3 +32,7 @@ postgresql_ha_client_networks:
 # Passwords — from configure/group_vars/all/secret.all.sops.yaml
 # postgresql_ha_superuser_password:
 # postgresql_ha_replication_password:
+
+# Application databases: [{name, owner, password}], created through the
+# floating IP. Passwords come from SOPS (postgresql_ha_app_passwords).
+postgresql_ha_databases: []

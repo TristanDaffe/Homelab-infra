@@ -1,0 +1,28 @@
+---
+# Application databases, created once through the floating IP (the leader)
+# with the postgres superuser, which pg_hba allows from the members. Each
+# owner is a plain LOGIN role that owns its database and nothing else.
+- name: Create application database users
+  community.postgresql.postgresql_user:
+    name: "{{ item.owner }}"
+    password: "{{ item.password }}"
+    login_host: "{{ postgresql_ha_vip }}"
+    login_user: postgres
+    login_password: "{{ postgresql_ha_superuser_password }}"
+  loop: "{{ postgresql_ha_databases }}"
+  no_log: true
+  run_once: true
+
+- name: Create application databases
+  community.postgresql.postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+    encoding: UTF-8
+    template: template0
+    login_host: "{{ postgresql_ha_vip }}"
+    login_user: postgres
+    login_password: "{{ postgresql_ha_superuser_password }}"
+  loop: "{{ postgresql_ha_databases }}"
+  loop_control:
+    label: "{{ item.name }}"
+  run_once: true

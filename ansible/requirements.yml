@@ -9,6 +9,9 @@ collections:
     version: 5.4.0
   - name: community.general
     version: 14.0.1
+  # postgresql-ha role (application databases)
+  - name: community.postgresql
+    version: 4.2.0
   # nodesetup only
   - name: community.proxmox
     version: 2.1.0

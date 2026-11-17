@@ -4,6 +4,17 @@
   become: true
   gather_facts: true
 
+  vars:
+    # Databases of the apps migrated to k3s (their passwords also go to
+    # Infisical for the apps; SOPS postgresql_ha_app_passwords)
+    postgresql_ha_databases:
+      - name: mealie
+        owner: mealie
+        password: "{{ postgresql_ha_app_passwords.mealie }}"
+      - name: paperless
+        owner: paperless
+        password: "{{ postgresql_ha_app_passwords.paperless }}"
+
   roles:
     - role: postgresql-ha
       tags: [postgresql-ha]
