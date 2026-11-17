@@ -1,0 +1,14 @@
+---
+# Node prerequisites for the NAS over SMB (csi-driver-smb from Homelab-k8S,
+# StorageClass nas-media, mounted with iocharset=utf8). Ubuntu's cloud kernel
+# ships nls_utf8 only in linux-modules-extra: without it that mount fails
+# (error 79), and without iocharset accented file names come out in Latin-1.
+# The package matches the running kernel: after a kernel upgrade and reboot,
+# rerun --tags k3s-nas before NAS volumes can mount. (The linux-image-extra-virtual
+# meta-package would track kernels, but pulls linux-firmware and desktop tools.)
+- name: Install the extra kernel modules for the running kernel (nls_utf8)
+  ansible.builtin.apt:
+    name: "linux-modules-extra-{{ ansible_kernel }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

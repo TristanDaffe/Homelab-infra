@@ -21,6 +21,10 @@
   ansible.builtin.import_tasks: longhorn.yaml
   tags: [k3s-longhorn]
 
+- name: Prepare the node for the NAS (SMB)
+  ansible.builtin.import_tasks: nas.yaml
+  tags: [k3s-nas]
+
 - name: Open the k3s ports in the firewall
   ansible.builtin.import_tasks: firewall.yaml
   tags: [k3s-firewall]
