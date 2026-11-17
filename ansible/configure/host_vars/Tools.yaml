@@ -47,11 +47,6 @@ docker:
       volumes:
         - shelfmark
         - shelfmark-2
-        - prowlarr
-        - sonarr
-        - radarr
-        - bazarr
-        - qbittorrent
     - name: beeper
       compose: beeper.yaml
       volumes:
