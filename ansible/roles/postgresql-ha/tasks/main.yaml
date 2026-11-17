@@ -112,6 +112,23 @@
     mode: "0600"
   notify: Reload Patroni
 
+# At boot the packaged unit can start before the LXC's address exists; etcd
+# then fails ("bind: cannot assign requested address") and is never retried,
+# leaving Patroni without its DCS and nobody on the floating IP.
+- name: Make etcd wait for the network and retry on failure
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/etcd.service.d/wait-for-network.conf
+    content: |
+      [Unit]
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      Restart=on-failure
+      RestartSec=5
+    mode: "0644"
+  register: postgresql_ha_etcd_dropin
+
 # Restarted right away, not via a handler: the package already started etcd
 # in single-node mode on install, and Patroni must not start against that.
 # Runs on the three hosts in parallel: a new etcd cluster only finishes
@@ -121,6 +138,7 @@
     name: etcd
     state: "{{ 'restarted' if postgresql_ha_etcd_config is changed else 'started' }}"
     enabled: true
+    daemon_reload: "{{ postgresql_ha_etcd_dropin is changed }}"
 
 - name: Start Patroni
   ansible.builtin.systemd:
