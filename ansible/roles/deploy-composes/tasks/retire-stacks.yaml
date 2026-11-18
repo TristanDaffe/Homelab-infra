@@ -1,0 +1,30 @@
+---
+# Stacks removed from docker.composes: take them down and delete their
+# folder in {{ docker.docker_dir }}/compose. Volumes and bind-mounted data
+# under {{ docker.docker_dir }}/volumes are kept.
+- name: Find compose stack folders
+  ansible.builtin.find:
+    paths: "{{ docker.docker_dir }}/compose"
+    file_type: directory
+    recurse: false
+  register: deploy_composes_stack_dirs
+
+- name: List stacks no longer declared
+  ansible.builtin.set_fact:
+    deploy_composes_retired: >-
+      {{ deploy_composes_stack_dirs.files | map(attribute='path') | map('basename')
+         | difference(docker.composes | map(attribute='name')) }}
+
+- name: Take down stacks no longer declared
+  community.docker.docker_compose_v2:
+    project_name: "{{ item }}"
+    project_src: "{{ docker.docker_dir }}/compose/{{ item }}"
+    state: absent
+    remove_orphans: true
+  loop: "{{ deploy_composes_retired }}"
+
+- name: Delete the folders of stacks no longer declared
+  ansible.builtin.file:
+    path: "{{ docker.docker_dir }}/compose/{{ item }}"
+    state: absent
+  loop: "{{ deploy_composes_retired }}"

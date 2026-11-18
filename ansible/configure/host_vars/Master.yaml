@@ -22,6 +22,9 @@ gid: 1002
 #######################
 
 docker:
+  # Must be repeated here: this dict replaces group_vars' docker dict, and
+  # without it the deploy-composes cleanup and stack retirement are skipped
+  cleanup: true
   docker_dir: "/docker"
   domain: autostack.ovh
   subdomain: "master"

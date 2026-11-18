@@ -49,6 +49,11 @@
     state: present
   loop: "{{ docker.composes }}"
 
+# Stacks removed from docker.composes: compose down + delete their folder.
+- name: Retire removed stacks
+  ansible.builtin.import_tasks: retire-stacks.yaml
+  when: docker.cleanup | default(false) | bool
+
 # Destructive: removes every container not belonging to a deployed stack.
 # Only runs when the consumer opts in via docker.cleanup.
 - name: Clean up containers
