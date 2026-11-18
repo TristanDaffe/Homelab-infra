@@ -115,6 +115,12 @@
 # At boot the packaged unit can start before the LXC's address exists; etcd
 # then fails ("bind: cannot assign requested address") and is never retried,
 # leaving Patroni without its DCS and nobody on the floating IP.
+- name: Create the etcd unit drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/etcd.service.d
+    state: directory
+    mode: "0755"
+
 - name: Make etcd wait for the network and retry on failure
   ansible.builtin.copy:
     dest: /etc/systemd/system/etcd.service.d/wait-for-network.conf
