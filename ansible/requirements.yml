@@ -11,7 +11,7 @@ collections:
     version: 14.0.1
   # postgresql-ha role (application databases)
   - name: community.postgresql
-    version: 4.2.0
+    version: 4.2.2
   # nodesetup only
   - name: community.proxmox
     version: 2.1.0
