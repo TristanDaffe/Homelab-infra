@@ -59,11 +59,6 @@ docker:
           uid: 65534
           gid: 65534
         - monitoring/loki
-        - grafana
-        - path: monitoring/grafana/var
-          uid: 472
-          gid: 472
-        - monitoring/grafana/config
       config:
         - file: prometheus.yaml.j2
           dst: monitoring/prometheus/prometheus.yml
