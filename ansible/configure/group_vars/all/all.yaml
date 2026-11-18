@@ -84,8 +84,7 @@ urbackup:
 # Defaults live in roles/monitoring/defaults/main.yaml — only overrides belong here.
 #######################
 
-# Kept in group_vars (not only role defaults) because prometheus.yaml.j2 reads it
-# cross-host via hostvars[host].node_exporter_host — role defaults aren't in hostvars.
+# Tailscale address of node_exporter (the role's default listen address, overridden below)
 node_exporter_host: "{{ services_ip }}"
 
 # Prometheus and Loki run in k3s (Homelab-k8S, namespace monitoring) and reach

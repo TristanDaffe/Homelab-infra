@@ -51,21 +51,6 @@ docker:
         - path: rustfs/logs
           uid: 1000
           gid: 1000
-    - name: monitoring
-      compose: monitoring.yaml
-      volumes:
-        - monitoring/prometheus
-        - path: monitoring/prometheus_data
-          uid: 65534
-          gid: 65534
-        - monitoring/loki
-      config:
-        - file: prometheus.yaml.j2
-          dst: monitoring/prometheus/prometheus.yml
-          mode: '0644'   # read by Prometheus as nobody; no secrets in it
-        - file: loki.yaml
-          dst: monitoring/loki/local-config.yaml
-          mode: '0644'   # read by Loki as uid 10001; no secrets in it
     - name: gateway
       compose: gateway.yaml
       volumes:
@@ -88,9 +73,6 @@ traefik_peers:
 #######################
 # Monitoring
 #######################
-
-# Bind node_exporter to all interfaces so Prometheus (Docker) can reach it
-node_exporter_listen_address: ""
 
 #######################
 # Backup (UrBackup)
