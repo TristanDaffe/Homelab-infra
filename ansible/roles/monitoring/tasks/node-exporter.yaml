@@ -61,10 +61,12 @@
     daemon_reload: true
   when: node_exporter_service is changed
 
+# Restarted inline when the unit changed: the verify task below must probe the
+# new process (e.g. a new listen address), the handler would only run after it.
 - name: Ensure node_exporter is running and enabled at boot.
   ansible.builtin.systemd_service:
     name: node_exporter
-    state: "{{ node_exporter_state }}"
+    state: "{{ 'restarted' if node_exporter_service is changed else node_exporter_state }}"
     enabled: "{{ node_exporter_enabled }}"
 
 # Probe the address node_exporter actually binds to (listen_address, not host):
