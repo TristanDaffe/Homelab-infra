@@ -21,3 +21,5 @@ mount_nas: false
 tailscale_network: "100.64.0.0/10"
 # Docker bridge range — lets containerized Prometheus reach node_exporter on the master
 docker_bridge_network: "172.16.0.0/12"
+# Extra addresses allowed to scrape node_exporter (9100) on Monitoring hosts
+monitoring_scrapers: []

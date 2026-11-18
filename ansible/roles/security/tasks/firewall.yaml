@@ -43,6 +43,14 @@
     from_ip: "{{ tailscale_network }}"
   when: "'Monitoring' in group_names"
 
+- name: Allow Node Exporter from the monitoring scrapers
+  community.general.ufw:
+    rule: allow
+    port: '9100'
+    proto: tcp
+    from_ip: "{{ item }}"
+  loop: "{{ monitoring_scrapers }}"
+  when: "'Monitoring' in group_names"
 - name: Allow Loki from Tailscale only
   community.general.ufw:
     rule: allow

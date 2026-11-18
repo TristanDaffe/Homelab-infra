@@ -22,6 +22,7 @@ See `defaults/main.yaml`. Common overrides:
 | `extra_packages`        | `[]`                  | Extra apt packages to install on every host            |
 | `mount_nas`             | `false`               | Whether to mount the `nas` CIFS share                  |
 | `tailscale_network`     | `100.64.0.0/10`       | Source CIDR allowed to reach monitoring ports via UFW  |
+| `monitoring_scrapers`   | `[]`                  | Extra addresses allowed to scrape node_exporter (k3s nodes) |
 | `docker_bridge_network` | `172.16.0.0/12`       | Source CIDR for containerized Prometheus → node_exporter (master) |
 
 When `mount_nas: true`, a `nas` dict is required (see the commented example in `defaults/main.yaml`):
