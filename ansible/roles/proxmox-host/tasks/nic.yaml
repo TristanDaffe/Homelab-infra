@@ -1,0 +1,30 @@
+---
+# The Intel I219 (e1000e) of the Lenovo Tiny hosts hangs under sustained
+# gigabit traffic ("eno1: Detected Hardware Unit Hang" every 2 s) and the host
+# stays off the network until a reboot. Turning off TCP and generic
+# segmentation offload is the usual mitigation for this driver.
+- name: Turn off segmentation offload whenever the interface comes up
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    insertafter: "^iface {{ item }} inet manual"
+    regexp: "^\\s*post-up /usr/sbin/ethtool -K {{ item }} "
+    line: "\tpost-up /usr/sbin/ethtool -K {{ item }} tso off gso off"
+  loop: "{{ proxmox_host_nic_offload_off }}"
+
+- name: Read the current offload settings
+  ansible.builtin.command: /usr/sbin/ethtool -k {{ item }}
+  loop: "{{ proxmox_host_nic_offload_off }}"
+  register: proxmox_host_nic_offloads
+  changed_when: false
+  check_mode: false
+
+# The driver resets the link to apply this: a few seconds without network.
+- name: Turn off segmentation offload now
+  ansible.builtin.command: /usr/sbin/ethtool -K {{ item.item }} tso off gso off
+  loop: "{{ proxmox_host_nic_offloads.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: >-
+    'tcp-segmentation-offload: on' in item.stdout
+    or 'generic-segmentation-offload: on' in item.stdout
+  changed_when: true

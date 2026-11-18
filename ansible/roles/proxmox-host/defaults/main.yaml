@@ -19,6 +19,10 @@ cloud_init_username: susu
 # CIFS shares to mount on the host. Each entry: { src, path, opts }.
 cifs_mounts: []
 
+# Interfaces whose TSO/GSO offloads are turned off (Intel e1000e hangs under
+# gigabit load). Set per host, e.g. [eno1]; see tasks/nic.yaml.
+proxmox_host_nic_offload_off: []
+
 # The igpu tasks read `lxc_containers` (defined in nodesetup group_vars) to know
 # which unprivileged containers need iGPU passthrough, and export the
 # `igpu_video_gid` / `igpu_render_gid` facts consumed by the proxmox-lxc role.

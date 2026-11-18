@@ -8,6 +8,11 @@
   when: cifs_mounts | default([]) | length > 0
   tags: [proxmox-host, cifs]
 
+- name: NIC offloads (e1000e hangs)
+  ansible.builtin.import_tasks: nic.yaml
+  when: proxmox_host_nic_offload_off | length > 0
+  tags: [proxmox-host, nic]
+
 - name: iGPU subgid for unprivileged LXC
   ansible.builtin.import_tasks: igpu.yaml
   tags: [proxmox-host, igpu]

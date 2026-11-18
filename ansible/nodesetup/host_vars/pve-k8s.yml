@@ -7,6 +7,10 @@
 ansible_host: 192.168.129.102
 ansible_ssh_user: root
 
+# --- NIC -----------------------------------------------------------------
+# e1000e "Detected Hardware Unit Hang" under load (2026-11-18): TSO/GSO off
+proxmox_host_nic_offload_off: [eno1]
+
 # --- Placement -----------------------------------------------------------
 proxmox_node: pve-dev-2
 proxmox_storage: vm-dev
