@@ -38,12 +38,6 @@ docker:
           dst: letsencrypt/peers.yaml
     - name: slaves
       compose: slave-containers.yaml
-    - name: other
-      compose: other.yaml
-      volumes:
-        - actual-budget
-        - mealie
-        - paperless
     - name: media
       compose: media.yaml
       volumes:
