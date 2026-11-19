@@ -46,7 +46,6 @@ docker:
     - name: backup
       compose: backup.yaml
       volumes:
-        - urbackup
         - zerobyte
         - path: rustfs/logs
           uid: 1000
@@ -62,7 +61,6 @@ docker:
       volumes:
         - portainer
         - mesh-mini
-        - wud
 
 master_ip: "{{ services_ip }}"
 

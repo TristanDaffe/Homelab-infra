@@ -41,19 +41,6 @@ docker:
           dst: letsencrypt/peers.yaml
     - name: slaves
       compose: slave-containers.yaml
-    - name: tools
-      compose: tools.yaml
-      volumes:
-        - stirling-data
-    - name: media-management
-      compose: media-management.yaml
-      volumes:
-        - shelfmark
-        - shelfmark-2
-    - name: beeper
-      compose: beeper.yaml
-      volumes:
-        - beeper-instagram
 
 traefik_peers:
   - "{{ hostvars['Master'].tailscale_ip }}"

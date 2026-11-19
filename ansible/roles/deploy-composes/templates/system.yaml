@@ -29,36 +29,6 @@ services:
       - "traefik.http.routers.mesh-mini.rule=Host(`mesh-mini.{{ docker.domain }}`)"
       - "traefik.http.routers.mesh-mini.entrypoints=websecure"
 
-  whatsupdocker:
-    image: getwud/wud:9.8.0
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/localtime:/etc/localtime:ro
-      - "{{ docker.docker_dir }}/volumes/wud:/store"
-    restart: unless-stopped
-    environment:
-      - WUD_LOG_LEVEL=info
-      - WUD_WATCHER_LOCAL_SOCKET=/var/run/docker.sock
-      - WUD_AUTH_OIDC_POCKETID_DISCOVERY={{ wud.discovery_url }}
-      - WUD_AUTH_OIDC_POCKETID_CLIENTID={{ wud.client_id }}
-      - WUD_AUTH_OIDC_POCKETID_CLIENTSECRET={{ wud.client_secret }}
-      - WUD_AUTH_OIDC_POCKETID_ADMINGROUP={{ wud.admin_group }}
-{% for host in groups['docker_hosts'] | reject('equalto', inventory_hostname) | list %}
-{% if hostvars[host].ansible_hostname is defined and hostvars[host].services_ip is defined %}
-      - WUD_WATCHER_{{ hostvars[host].ansible_hostname | upper }}_HOST={{ hostvars[host].services_ip }}
-      - WUD_WATCHER_{{ hostvars[host].ansible_hostname | upper }}_PORT=2375
-      - WUD_WATCHER_{{ hostvars[host].ansible_hostname | upper }}_CRON=0 1 * * *
-      - WUD_WATCHER_{{ hostvars[host].ansible_hostname | upper }}_WATCHALL=true
-{% endif %}
-{% endfor %}
-    networks:
-      - proxy_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.wud.loadbalancer.server.port=3000"
-      - "traefik.http.routers.wud.rule=Host(`wud.{{ docker.domain }}`)"
-      - "traefik.http.routers.wud.entrypoints=websecure"
-
 networks:
   proxy_network:
     external: true

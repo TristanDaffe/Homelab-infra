@@ -22,34 +22,6 @@ services:
       - "traefik.http.routers.pocket-id.entrypoints=websecure"
 
 
-{% for item in tinyauth_groups %}
-  tinyauth-{{ item.name }}:
-    image: ghcr.io/tinyauthapp/tinyauth:v5
-    restart: unless-stopped
-    networks:
-      - proxy_network
-    environment:
-      - TINYAUTH_APPURL=https://auth-{{ item.name }}.{{ docker.domain }}
-      - TINYAUTH_UI_TITLE=TinyAuth - {{ item.name }}
-      - TINYAUTH_AUTH_TRUSTEDPROXIES=172.16.0.0/12
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_CLIENTID={{ item.sso_client_id }}
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_CLIENTSECRET={{ item.sso_client_id_secret }}
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_AUTHURL=https://pocket-id.{{ docker.domain }}/authorize
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_TOKENURL=https://pocket-id.{{ docker.domain }}/api/oidc/token
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_USERINFOURL=https://pocket-id.{{ docker.domain }}/api/oidc/userinfo
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_REDIRECTURL=https://auth-{{ item.name }}.{{ docker.domain }}/api/oauth/callback/pocketid
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_SCOPES=openid email profile groups
-      - TINYAUTH_OAUTH_PROVIDERS_POCKETID_NAME=Pocket ID
-      - TINYAUTH_OAUTH_AUTOREDIRECT=pocketid
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.tinyauth-{{ item.name }}.rule=Host(`auth-{{ item.name }}.{{ docker.domain }}`)"
-      - wud.tag.include=^v\d+$$
-      - "traefik.http.routers.tinyauth-{{ item.name }}.entrypoints=websecure"
-      - "traefik.http.services.tinyauth-{{ item.name }}.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.tinyauth-{{ item.name }}.forwardauth.address=http://tinyauth-{{ item.name }}:3000/api/auth/traefik"
-      - "traefik.http.middlewares.tinyauth-{{ item.name }}.forwardauth.trustForwardHeader=true"
-{% endfor %}
 
 networks:
   proxy_network:

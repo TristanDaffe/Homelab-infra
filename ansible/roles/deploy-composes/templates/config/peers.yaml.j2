@@ -14,12 +14,3 @@ tcp:
           - address: "{{ peer }}:443"
 {% endfor %}
 
-http:
-  middlewares:
-{% for item in tinyauth_groups %}
-    tinyauth-{{ item.name }}:
-      forwardAuth:
-        address: "https://auth-{{ item.name }}.{{ docker.domain }}/api/auth/traefik"
-        trustForwardHeader: true
-{% endfor %}
-
