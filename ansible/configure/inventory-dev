@@ -12,6 +12,12 @@ ansible_ssh_user=root
 [Tailscale:children]
 docker_hosts
 
+# node_exporter + Alloy (monitoring role), scraped/collected by the k3s monitoring
+# stack; the Postgres LXCs' firewall is managed by the postgresql-ha role
+[Monitoring:children]
+docker_hosts
+postgres_ha
+
 # All three are servers (embedded etcd, quorum 2 of 3) and run workloads.
 # The first one bootstraps the cluster (--cluster-init); the others join it.
 [k3s_server]

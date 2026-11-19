@@ -32,6 +32,7 @@
         labels     = {"host" = "{{ ansible_hostname }}", "job" = "journal"}
       }
 
+      {% if 'docker_hosts' in group_names %}
       discovery.docker "containers" {
         host             = "unix:///var/run/docker.sock"
         refresh_interval = "10s"
@@ -60,10 +61,12 @@
         targets    = discovery.relabel.containers.output
         forward_to = [loki.write.local.receiver]
       }
+      {% endif %}
 
-- name: Add alloy user to docker, adm and systemd-journal groups
+# docker only where Docker runs (the Postgres LXCs have no docker group)
+- name: Add alloy user to the docker, adm and systemd-journal groups
   ansible.builtin.user:
     name: alloy
-    groups: docker,adm,systemd-journal
+    groups: "{{ (['docker'] if 'docker_hosts' in group_names else []) + ['adm', 'systemd-journal'] }}"
     append: true
   notify: Restart alloy

@@ -61,6 +61,18 @@
   loop_control:
     label: "{{ item.0 }} from {{ item.1 }}"
 
+# node_exporter (monitoring role) and Patroni's /metrics, scraped by Prometheus
+# in k3s (monitoring_scrapers = the k3s node IPs, group_vars)
+- name: Allow node_exporter and Patroni metrics from the monitoring scrapers
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.0 }}"
+    proto: tcp
+    from_ip: "{{ item.1 }}"
+  loop: "{{ ['9100', '8008'] | product(monitoring_scrapers | default([])) | list }}"
+  loop_control:
+    label: "{{ item.0 }} from {{ item.1 }}"
+
 - name: Allow keepalived (VRRP) between cluster members
   community.general.ufw:
     rule: allow
