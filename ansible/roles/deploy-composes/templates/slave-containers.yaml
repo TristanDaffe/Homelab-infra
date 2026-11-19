@@ -16,7 +16,7 @@ services:
       - server-confirms
 
   portainer-agent:
-    image: portainer/agent:3.0.1
+    image: portainer/agent:3.1.0
     restart: unless-stopped
     environment:
       - TZ={{ timezone }}
