@@ -4,7 +4,7 @@ services:
   # which connects outbound to Beeper's servers (no port, no Traefik route).
   # Log in to Instagram by messaging the bridge bot from the Beeper app.
   beeper-instagram:
-    image: ghcr.io/beeper/bridge-manager:latest@sha256:2645ad145113bf2436b9c3f65e4b0c1571b89026d8b03d17c7f3822b369a04ed
+    image: ghcr.io/beeper/bridge-manager:latest@sha256:a7f564978d416f98f1fe680b49a5957f5e002303d2fd164cd7b1f8f3e20ba4d7
     restart: unless-stopped
     user: "{{ docker.puid }}:{{ docker.pgid }}"
     command: sh-instagram
