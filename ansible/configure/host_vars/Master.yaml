@@ -50,12 +50,6 @@ docker:
         - path: rustfs/logs
           uid: 1000
           gid: 1000
-    - name: gateway
-      compose: gateway.yaml
-      volumes:
-        - path: pocket-id
-          uid: 65532
-          gid: 65532
     - name: system
       compose: system.yaml
       volumes:
