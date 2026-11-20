@@ -92,7 +92,7 @@ node_exporter_host: "{{ services_ip }}"
 # firewall limits 9100 to Tailscale and monitoring_scrapers), and Alloy pushes
 # to Loki through the cluster ingress (allowlisted to Master, Tools, Media).
 node_exporter_listen_address: ""
-alloy_loki_url: "https://loki.kube.autostack.ovh/loki/api/v1/push"
+alloy_loki_url: "https://loki.autostack.ovh/loki/api/v1/push"
 # k3s nodes (Prometheus pods leave the cluster with their node's address)
 monitoring_scrapers:
   - 192.168.129.130
