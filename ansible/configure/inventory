@@ -2,10 +2,10 @@
 Master ansible_host=192.168.129.125
 
 [Lxc]
-Tools ansible_host=192.168.129.124
 Media ansible_host=192.168.129.123
 
-# Runs Prometheus, Loki and the UrBackup server; gets the matching firewall rules
+# Master: runs the Portainer server (the other hosts open the agent port). Its
+# Loki/Prometheus firewall rules are leftovers: monitoring moved to k3s
 [MonitoringMaster]
 Master
 

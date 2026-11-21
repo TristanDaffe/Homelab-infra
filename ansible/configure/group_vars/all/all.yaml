@@ -90,7 +90,7 @@ node_exporter_host: "{{ services_ip }}"
 # Prometheus and Loki run in k3s (Homelab-k8S, namespace monitoring) and reach
 # these hosts by LAN address: node_exporter listens on every address (the
 # firewall limits 9100 to Tailscale and monitoring_scrapers), and Alloy pushes
-# to Loki through the cluster ingress (allowlisted to Master, Tools, Media).
+# to Loki through the cluster ingress (IP allowlist in homelab-k8s infrastructure/loki).
 node_exporter_listen_address: ""
 alloy_loki_url: "https://loki.autostack.ovh/loki/api/v1/push"
 # k3s nodes (Prometheus pods leave the cluster with their node's address)

@@ -57,7 +57,6 @@ docker:
           dst: tailscale/serve.json
 
 traefik_peers:
-  - "{{ hostvars['Tools'].tailscale_ip }}"
   - "{{ hostvars['Master'].tailscale_ip }}"
 
 #######################

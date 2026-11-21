@@ -47,6 +47,8 @@ lxc_containers:
         dst: /media
         mp_index: 1
 
+  # Retired 2026-11-21 (apps moved to k3s); stopped, kept for rollback.
+  # proxmox-lxc only creates: apply onboot by hand (pct set 224 --onboot 0)
   - hostname: tools
     ctid: 224
     memory: 8192
@@ -54,7 +56,7 @@ lxc_containers:
     rootfs_gb: 24
     ipconfig: "192.168.129.124/23,gw=192.168.128.1"
     privileged: false
-    autostart: true
+    autostart: false
     features:
       - nesting=1
     enable_tun: true

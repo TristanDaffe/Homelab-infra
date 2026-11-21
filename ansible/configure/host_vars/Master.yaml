@@ -60,7 +60,6 @@ master_ip: "{{ services_ip }}"
 
 traefik_peers:
   - "{{ hostvars['Media'].tailscale_ip }}"
-  - "{{ hostvars['Tools'].tailscale_ip }}"
 
 #######################
 # Monitoring
