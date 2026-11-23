@@ -6,7 +6,7 @@ collections:
   - name: artis3n.tailscale
     version: 1.2.1
   - name: community.docker
-    version: 5.4.0
+    version: 5.4.1
   - name: community.general
     version: 14.0.1
   # postgresql-ha role (application databases)
