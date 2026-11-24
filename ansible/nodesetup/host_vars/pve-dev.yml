@@ -59,6 +59,7 @@ vms:
   - name: k8s-3
     vmid: 132
     cores: 2
+    cpu: host
     memory: 5120
     disk_gb: 40
     data_disk_gb: 60                    # scsi1, mounted at /var/lib/longhorn

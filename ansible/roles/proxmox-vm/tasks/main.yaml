@@ -13,6 +13,7 @@
     name: "{{ vm.name }}"
     memory: "{{ vm.memory | default(2048) }}"
     cores: "{{ vm.cores | default(2) }}"
+    cpu: "{{ vm.cpu | default(omit) }}"
     keyboard: "{{ keyboard_layout | default(omit) }}"
     scsihw: virtio-scsi-pci
     net:
@@ -74,6 +75,16 @@
   when: >-
     (vm_config.stdout | regex_search('(?m)^memory: (\\d+)', '\\1') | default(['0'], true) | first | int) != (vm.memory | default(2048) | int)
     or (vm_config.stdout | regex_search('(?m)^cores: (\\d+)', '\\1') | default(['0'], true) | first | int) != (vm.cores | default(2) | int)
+
+# Without a cpu type Proxmox uses kvm64, which lacks x86-64-v2 (SSE4.2, POPCNT):
+# recent NumPy wheels refuse to load on it. Applied at the VM's next restart.
+- name: Update the CPU type (applied at the VM's next restart)
+  ansible.builtin.command: "qm set {{ vm.vmid }} --cpu {{ vm.cpu }}"
+  changed_when: true
+  become: true
+  when: >-
+    vm.cpu is defined
+    and vm_config.stdout is not search('^cpu: ' ~ (vm.cpu | regex_escape) ~ '$', multiline=True)
 
 - name: Start VM
   community.proxmox.proxmox_kvm:

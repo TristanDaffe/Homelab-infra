@@ -10,6 +10,7 @@ proxmox_validate_certs: false
 #   vmid (required)        - Proxmox VMID
 #   memory                 - MB,    default 2048
 #   cores                  - vCPUs, default 2
+#   cpu                    - CPU type (e.g. host); Proxmox default kvm64 if unset
 #   disk_gb                - grow scsi0 to this size after import (Proxmox can only grow)
 #   ciuser / cipassword    - cloud-init user/pass (cipassword falls back to clear_pass)
 #   ipconfig0              - "ip=<cidr>,gw=<gw>" or "ip=dhcp"
