@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       - "TZ={{ timezone }}"
-      - "BASE_URL=https://zerobyte.{{ docker.domain }}"
+      - "BASE_URL=https://zerobyte.dev.{{ docker.domain }}"
       - "APP_SECRET={{ zerobyte.app_secret }}" 
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -18,7 +18,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.services.zerobyte.loadbalancer.server.port=4096"
       - wud.tag.include=^v\d+\.\d+\.\d+$$
-      - "traefik.http.routers.zerobyte.rule=Host(`zerobyte.{{ docker.domain }}`)"
+      - "traefik.http.routers.zerobyte.rule=Host(`zerobyte.dev.{{ docker.domain }}`)"
       - "traefik.http.routers.zerobyte.entrypoints=websecure"
 
   # rustfs:

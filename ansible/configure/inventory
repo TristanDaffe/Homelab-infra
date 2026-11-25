@@ -4,7 +4,8 @@ Master ansible_host=192.168.129.125
 [Lxc]
 Media ansible_host=192.168.129.123
 
-# Master: runs the Portainer server (the other hosts open the agent port). Its
+# Master: the Portainer server moved to DevTools; this group still keeps the
+# agent port closed here (Master has no agent). Its
 # Loki/Prometheus firewall rules are leftovers: monitoring moved to k3s
 [MonitoringMaster]
 Master

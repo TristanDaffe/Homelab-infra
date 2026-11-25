@@ -11,7 +11,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.{{ docker.domain }}`)"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.dev.{{ docker.domain }}`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
 
   mesh-mini:
@@ -26,7 +26,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.mesh-mini.loadbalancer.server.port=3000"
-      - "traefik.http.routers.mesh-mini.rule=Host(`mesh-mini.{{ docker.domain }}`)"
+      - "traefik.http.routers.mesh-mini.rule=Host(`mesh-mini.dev.{{ docker.domain }}`)"
       - "traefik.http.routers.mesh-mini.entrypoints=websecure"
 
 networks:

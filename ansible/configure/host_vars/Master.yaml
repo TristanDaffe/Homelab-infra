@@ -43,18 +43,6 @@ docker:
           dst: letsencrypt/traefik.yaml
         - file: peers.yaml.j2
           dst: letsencrypt/peers.yaml
-    - name: backup
-      compose: backup.yaml
-      volumes:
-        - zerobyte
-        - path: rustfs/logs
-          uid: 1000
-          gid: 1000
-    - name: system
-      compose: system.yaml
-      volumes:
-        - portainer
-        - mesh-mini
 
 master_ip: "{{ services_ip }}"
 

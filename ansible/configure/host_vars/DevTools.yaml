@@ -2,7 +2,18 @@
 
 hostname: devtools
 tailscale_ip: 100.89.46.10
-mount_nas: false
+# NAS for Zerobyte's repository (/mnt/nas/volumes/zerobyte)
+mount_nas: true
+
+#######################
+# NAS
+#######################
+
+nas:
+  share: //192.168.129.45/Tristan
+  mount: /mnt/nas
+  puid: 1000
+  pgid: 1000
 
 #######################
 # Docker
@@ -39,6 +50,16 @@ docker:
       config:
         - file: forgejo-runner.yaml.j2
           dst: forgejo-runner/config.yml
+    # Moved from Master 2026-11-25; served as *.dev.autostack.ovh
+    - name: backup
+      compose: backup.yaml
+      volumes:
+        - zerobyte
+    - name: system
+      compose: system.yaml
+      volumes:
+        - portainer
+        - mesh-mini
 
 #######################
 # Backup (UrBackup)
