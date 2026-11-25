@@ -49,6 +49,7 @@ vms:
   - name: DevTools
     vmid: 129
     cores: 4
+    cpu: host                           # Zerobyte (Bun) needs SSE4.2
     memory: 8192
     disk_gb: 128
     ciuser: susu
