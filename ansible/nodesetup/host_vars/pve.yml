@@ -1,5 +1,5 @@
 ############
-# Existing node — master VM + media / tools LXC
+# Existing node — media LXC (master VM and tools LXC retired)
 ############
 
 # --- Connection ----------------------------------------------------------
@@ -19,13 +19,15 @@ cifs_mounts:
 
 # --- VMs on this node ----------------------------------------------------
 vms:
+  # Retired 2026-11-27 (services moved to DevTools and k3s); shut down, kept
+  # for rollback. proxmox-vm only creates: onboot was turned off by hand
   - name: master
     vmid: 125
     memory: 12288
     cores: 3
     disk_gb: 128
     ciuser: susu
-    autostart: true
+    autostart: false
     ipconfig0: ip=192.168.129.125/23,gw=192.168.128.1
 
 # --- LXC containers on this node -----------------------------------------

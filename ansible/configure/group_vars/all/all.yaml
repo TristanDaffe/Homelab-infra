@@ -70,16 +70,6 @@ docker:
           dst: letsencrypt/traefik.yaml
 
 #######################
-# Backup (UrBackup)
-#######################
-
-urbackup:
-  server_host: "{{ hostvars[groups['MonitoringMaster'][0]].services_ip }}"
-  backup_dirs: # Directories backed up by the client on each node
-    - "{{ docker.docker_dir }}/volumes"
-  authkey: 
-
-#######################
 # Monitoring
 # Defaults live in roles/monitoring/defaults/main.yaml — only overrides belong here.
 #######################

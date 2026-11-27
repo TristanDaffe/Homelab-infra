@@ -1,30 +1,14 @@
-[Vm]
-Master ansible_host=192.168.129.125
-
 [Lxc]
 Media ansible_host=192.168.129.123
 
-# Master: the Portainer server moved to DevTools; this group still keeps the
-# agent port closed here (Master has no agent). Its
-# Loki/Prometheus firewall rules are leftovers: monitoring moved to k3s
-[MonitoringMaster]
-Master
-
 [docker_hosts:children]
-Vm
 Lxc
 
 [Monitoring:children]
-Vm
 Lxc
 
 [Tailscale:children]
-Vm
 Lxc
-
-[Vm:vars]
-ansible_ssh_user=susu
 
 [Lxc:vars]
 ansible_ssh_user=susu
-

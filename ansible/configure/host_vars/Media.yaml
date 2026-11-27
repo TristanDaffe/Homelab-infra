@@ -37,8 +37,6 @@ docker:
       config:
         - file: traefik.yaml
           dst: letsencrypt/traefik.yaml
-        - file: peers.yaml.j2
-          dst: letsencrypt/peers.yaml
     - name: slaves
       compose: slave-containers.yaml
     - name: media
@@ -55,17 +53,3 @@ docker:
       config:
         - file: ts-serve.json
           dst: tailscale/serve.json
-
-traefik_peers:
-  - "{{ hostvars['Master'].tailscale_ip }}"
-
-#######################
-# Backup (UrBackup)
-#######################
-
-urbackup:
-  server_host: "{{ hostvars[groups['MonitoringMaster'][0]].services_ip }}"
-  backup_dirs: # Directories backed up by the client on each node
-    - "{{ docker.docker_dir }}/volumes"
-  authkey: "{{ urbackup_authkeys.media }}" 
-

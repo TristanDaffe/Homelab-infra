@@ -7,7 +7,7 @@
 # Required repo secrets (apply job only):
 #   SOPS_AGE_KEY     CI age private key (one of the recipients in .sops.yaml)
 #   SSH_PRIVATE_KEY  CI deploy key; its public half is in ssh_authorized_keys
-#   SSH_KNOWN_HOSTS  output of: ssh-keyscan 192.168.129.123 192.168.129.125
+#   SSH_KNOWN_HOSTS  output of: ssh-keyscan 192.168.129.123
 #
 # Never add --diff: compose templates contain secrets and the diff would print them.
 name: configure
